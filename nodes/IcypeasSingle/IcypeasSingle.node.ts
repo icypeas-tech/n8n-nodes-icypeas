@@ -6,13 +6,13 @@ import {
 	NodeOperationError,
 } from 'n8n-workflow';
 
-export class ExampleNode implements INodeType {
+export class IcypeasSingle implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Example Node',
-		name: 'exampleNode',
+		displayName: 'Icypeas-Single',
+		name: 'IcypeasSingle',
 		group: ['transform'],
 		version: 1,
-		description: 'Basic Example Node',
+		description: 'Icypeas-Single Node for n8n will take care of the single searches (email verification, email search & domain search) with the Icypeas\'s API',
 		defaults: {
 			name: 'Example Node',
 		},
@@ -22,12 +22,36 @@ export class ExampleNode implements INodeType {
 			// Node properties which the user gets displayed and
 			// can change on the node.
 			{
-				displayName: 'My String',
-				name: 'myString',
+				displayName: 'API Key',
+				name: 'apiKey',
 				type: 'string',
 				default: '',
-				placeholder: 'Placeholder value',
-				description: 'The description text',
+				placeholder: 'Your Icypeas API Key',
+				description: 'Your Icypeas API Key to authenticate the request',
+			},
+			{
+				displayName: 'API Secret',
+				name: 'apiSecret',
+				type: 'string',
+				default: '',
+				placeholder: 'Your Icypeas API Secret',
+				description: 'Your Icypeas API Secret to authenticate the request',
+			},
+			{
+				displayName: 'User ID',
+				name: 'userId',
+				type: 'string',
+				default: '',
+				placeholder: 'Your Icypeas User ID',
+				description: 'Your Icypeas User ID to authenticate the request',
+			},
+			{
+				displayName: 'Email',
+				name: 'email',
+				type: 'string',
+				default: '',
+				placeholder: 'Email to search',
+				description: 'Email to search',
 			},
 		],
 	};
