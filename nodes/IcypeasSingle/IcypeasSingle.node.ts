@@ -24,24 +24,6 @@ export class IcypeasSingle implements INodeType {
 			// Node properties which the user gets displayed and
 			// can change on the node.
 			{
-				displayName: 'API Key',
-				name: 'apiKey',
-				type: 'string',
-				default: '',
-			},
-			{
-				displayName: 'API Secret',
-				name: 'apiSecret',
-				type: 'string',
-				default: '',
-			},
-			/*{
-				displayName: 'User ID',
-				name: 'userId',
-				type: 'string',
-				default: '',
-			},*/
-			{
 				displayName: 'Email',
 				name: 'email',
 				type: 'string',
@@ -49,7 +31,6 @@ export class IcypeasSingle implements INodeType {
 				placeholder: 'Email to search',
 				description: 'Email to search',
 			},
-			
 		],
 	};
 
@@ -58,9 +39,10 @@ export class IcypeasSingle implements INodeType {
 	// with whatever the user has entered.
 	// You can make async calls and use `await`.
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
+		const credentials = await this.getCredentials('credentialsIcypeasApi');
+		const apiKey = credentials.apiKey as string;
+      	const apiSecret = credentials.apiSecret as string;
 
-		const apiKey = this.getNodeParameter('apiKey', 0) as string;
-		const apiSecret = this.getNodeParameter('apiSecret', 0) as string;
 		//const userId = this.getNodeParameter('userId', 0) as string;
 
 		const URL = "https://app.icypeas.com/api/email-verification";

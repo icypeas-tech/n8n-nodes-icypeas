@@ -6,25 +6,38 @@ import {
 } from 'n8n-workflow';
 
 export class IcypeasApi implements ICredentialType {
-	name = 'exampleCredentialsApi';
-	displayName = 'Example Credentials API';
+	name = 'credentialsIcypeasApi';
+	displayName = 'Credentials Icypeas API';
 	properties: INodeProperties[] = [
 		// The credentials to get from user and save encrypted.
 		// Properties can be defined exactly in the same way
 		// as node properties.
 		{
-			displayName: 'API Key',
-			name: 'apiKey',
-			type: 'string',
-			default: '',
-		},
-		{
 			displayName: 'API Secret',
 			name: 'apiSecret',
 			type: 'string',
+			typeOptions: {
+			  	password: true,
+			},
 			default: '',
 		},
+		{
+			displayName: 'API Key',
+			name: 'apiKey',
+			type: 'string',
+			typeOptions: {
+				password: true,
+			},
+			default: '',
+		},
+		/*{
+			displayName: 'User ID',
+			name: 'userId',
+			type: 'string',
+			default: '',
+		},*/
 	];
+
 
 	// This credential is currently not used by any node directly
 	// but the HTTP Request node can use it to make requests.
@@ -33,8 +46,8 @@ export class IcypeasApi implements ICredentialType {
 		type: 'generic',
 		properties: {
 			auth: {
-				username: '={{ $credentials.username }}',
-				password: '={{ $credentials.password }}',
+				username: '={{ $credentials.apiKey }}',
+				password: '={{ $credentials.apiSecret }}',
 			},
 			qs: {
 				// Send this as part of the query string
@@ -50,4 +63,14 @@ export class IcypeasApi implements ICredentialType {
 			url: '',
 		},
 	};
+
+	getCredentials(this: any): {
+		apiKey: string;
+		apiSecret: string;
+	} {
+		return {
+			apiKey: this.getCredential('apiKey') as string,
+			apiSecret: this.getCredential('apiSecret') as string,
+		};
+	}
 }
