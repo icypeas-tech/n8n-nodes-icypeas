@@ -58,7 +58,7 @@ export class IcypeasSingle implements INodeType {
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 
-		let item: INodeExecutionData;
+		//let item: INodeExecutionData;
 
 		const apiKey = this.getNodeParameter('apiKey', 0) as string;
 		const apiSecret = this.getNodeParameter('apiSecret', 0) as string;
@@ -88,23 +88,25 @@ export class IcypeasSingle implements INodeType {
 			try {
 				const email = item.json.email as string; // Get the email value from the input item
 
+				// Generate the timestamp and signature
 				const timestamp = new Date().toISOString();
 				const signature = genSignature(URL, METHOD, apiSecret, timestamp);
 
 				const bodyParameters = { email, };
 
-				const headersParameters = { "X-ROCK-TIMESTAMP": timestamp,};
+				const headers = {
+					"Content-Type": "application/json",
+					Authorization: `${apiKey}:${signature}`,
+					"X-ROCK-TIMESTAMP": timestamp,
+				};
 
 				// Make the API call with the provided parameters (apiKey, apiSecret, userId, etc.)
 				const response = await this.helpers.request({
 					method: 'POST',
 					url: URL,
 					body: bodyParameters,
-					headers: {
-						Authorization: `Basic ${Buffer.from(`${apiKey}:${signature}`).toString('base64')}`,
-						"X-ROCK-TIMESTAMP": timestamp,
-					},
-				});
+					headers: headers,
+				  });
 
 				if (response.success) {
 					// If the API call was successful
@@ -139,7 +141,6 @@ export class IcypeasSingle implements INodeType {
 				};
 			}
 		}
-
 		return this.prepareOutputData(items);
 	}
 }
