@@ -5,7 +5,7 @@ import {
 	INodeProperties,
 } from 'n8n-workflow';
 
-export class IcypeasApi implements ICredentialType {
+export class exampleApi implements ICredentialType {
 	name = 'exampleCredentialsApi';
 	displayName = 'Example Credentials API';
 	properties: INodeProperties[] = [
@@ -13,24 +13,18 @@ export class IcypeasApi implements ICredentialType {
 		// Properties can be defined exactly in the same way
 		// as node properties.
 		{
-			displayName: 'API Key',
-			name: 'apiKey',
+			displayName: 'User Name',
+			name: 'username',
+			type: 'string',
+			default: '',
+		},
+		{
+			displayName: 'Password',
+			name: 'password',
 			type: 'string',
 			typeOptions: {
 				password: true,
 			},
-			default: '',
-		},
-		{
-			displayName: 'API Secret',
-			name: 'apiSecret',
-			type: 'string',
-			default: '',
-		},
-		{
-			displayName: 'User ID',
-			name: 'userId',
-			type: 'string',
 			default: '',
 		},
 	];
@@ -59,15 +53,4 @@ export class IcypeasApi implements ICredentialType {
 			url: '',
 		},
 	};
-	getCredentials(this: any): {
-		apiKey: string;
-		apiSecret: string;
-		userId: string;
-	} {
-		return {
-			apiKey: this.getCredential('apiKey') as string,
-			apiSecret: this.getCredential('apiSecret') as string,
-			userId: this.getCredential('userId') as string,
-		};
-	}
 }

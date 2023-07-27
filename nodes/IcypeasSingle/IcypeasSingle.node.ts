@@ -22,30 +22,6 @@ export class IcypeasSingle implements INodeType {
 			// Node properties which the user gets displayed and
 			// can change on the node.
 			{
-				displayName: 'API Key',
-				name: 'apiKey',
-				type: 'string',
-				default: '',
-				placeholder: 'Your Icypeas API Key',
-				description: 'Your Icypeas API Key to authenticate the request',
-			},
-			{
-				displayName: 'API Secret',
-				name: 'apiSecret',
-				type: 'string',
-				default: '',
-				placeholder: 'Your Icypeas API Secret',
-				description: 'Your Icypeas API Secret to authenticate the request',
-			},
-			{
-				displayName: 'User ID',
-				name: 'userId',
-				type: 'string',
-				default: '',
-				placeholder: 'Your Icypeas User ID',
-				description: 'Your Icypeas User ID to authenticate the request',
-			},
-			{
 				displayName: 'Email',
 				name: 'email',
 				type: 'string',
@@ -65,9 +41,15 @@ export class IcypeasSingle implements INodeType {
 		const items = this.getInputData();
 
 		let item: INodeExecutionData;
-		const apiKey = this.getNodeParameter('apiKey', 0) as string;
-		const apiSecret = this.getNodeParameter('apiSecret', 0) as string;
-		const userId = this.getNodeParameter('userId', 0) as string;
+		const credentials = await this.getCredentials('credentialsIcypeasApi') as {
+			apiKey: string;
+			apiSecret: string;
+			userId: string;
+		}; // Retrieve credentials
+
+		const apiKey = credentials.apiKey as string;
+		const apiSecret = credentials.apiSecret as string;
+		const userId = credentials.userId as string;
 
 		const URL = "https://app.icypeas.com/api/email-verification";
 		const METHOD = "POST";
@@ -106,7 +88,8 @@ export class IcypeasSingle implements INodeType {
 					url: URL,
 					body: bodyParameters,
 					headers: {
-						Authorization: `Basic ${Buffer.from(`${apiKey}:${apiSecret}`).toString('base64')}`,
+						Authorization: `Basic ${Buffer.from(`${apiKey}:${signature}`).toString('base64')}`,
+						"X-ROCK-TIMESTAMP": timestamp,
 					},
 				});
 
