@@ -12,27 +12,7 @@ export class IcypeasApi implements ICredentialType {
 		// The credentials to get from user and save encrypted.
 		// Properties can be defined exactly in the same way
 		// as node properties.
-		{
-			displayName: 'API Key',
-			name: 'apiKey',
-			type: 'string',
-			typeOptions: {
-				password: true,
-			},
-			default: '',
-		},
-		{
-			displayName: 'API Secret',
-			name: 'apiSecret',
-			type: 'string',
-			default: '',
-		},
-		{
-			displayName: 'User ID',
-			name: 'userId',
-			type: 'string',
-			default: '',
-		},
+
 	];
 
 	// This credential is currently not used by any node directly
@@ -59,15 +39,4 @@ export class IcypeasApi implements ICredentialType {
 			url: '',
 		},
 	};
-	getCredentials(this: any): {
-		apiKey: string;
-		apiSecret: string;
-		userId: string;
-	} {
-		return {
-			apiKey: this.getCredential('apiKey') as string,
-			apiSecret: this.getCredential('apiSecret') as string,
-			userId: this.getCredential('userId') as string,
-		};
-	}
 }
