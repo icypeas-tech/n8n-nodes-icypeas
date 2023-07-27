@@ -5,6 +5,7 @@ import {
 	INodeTypeDescription,
 	NodeOperationError,
 } from 'n8n-workflow';
+import fetch from 'node-fetch'; // Import the fetch function
 
 export class IcypeasSingle implements INodeType {
 	description: INodeTypeDescription = {
@@ -56,9 +57,6 @@ export class IcypeasSingle implements INodeType {
 	// with whatever the user has entered.
 	// You can make async calls and use `await`.
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
-		const items = this.getInputData();
-
-		//let item: INodeExecutionData;
 
 		const apiKey = this.getNodeParameter('apiKey', 0) as string;
 		const apiSecret = this.getNodeParameter('apiSecret', 0) as string;
@@ -83,64 +81,62 @@ export class IcypeasSingle implements INodeType {
 			return sign;
 		};
 
-		// Iterates over all input items and add the key "response" with the result of the API call
-		for (const item of items) {
-			try {
-				const email = item.json.email as string; // Get the email value from the input item
+		try {
+			const email = this.getNodeParameter('email', 0) as string; // Get the email value from the node properties
 
-				// Generate the timestamp and signature
-				const timestamp = new Date().toISOString();
-				const signature = genSignature(URL, METHOD, apiSecret, timestamp);
+			// Generate the timestamp and signature
+			const timestamp = new Date().toISOString();
+			const signature = genSignature(URL, METHOD, apiSecret, timestamp);
 
-				const bodyParameters = { email, };
+			const bodyParameters = JSON.stringify({ email });
 
-				const headers = {
+			const headers = {
 					"Content-Type": "application/json",
 					Authorization: `${apiKey}:${signature}`,
 					"X-ROCK-TIMESTAMP": timestamp,
-				};
+			};
 
-				// Make the API call with the provided parameters (apiKey, apiSecret, userId, etc.)
-				const response = await this.helpers.request({
-					method: 'POST',
-					url: URL,
-					body: bodyParameters,
-					headers: headers,
-				  });
+			// Make the API call with the provided parameters (apiKey, apiSecret, userId, etc.)
+			const response = await this.helpers.request({
+				method: 'POST',
+				url: URL,
+				body: bodyParameters,
+				headers: headers,
+			});
 
-				if (response.success) {
-					// If the API call was successful
-					item.json['response'] = {
-						success: true,
-						message: 'Email verification successful!',
-						data: {
-							email,
-							status: response.item?.status,
-							// Add other relevant data here based on the Icypeas API response
-						},
-					};
-				} else {
-					// If the API call was not successful, check for specific errors
-					if (response.validationErrors) {
-						// If there are validation errors
-						const errorMessage = response.validationErrors.map((error: any) => error.message).join(', ');
-						throw new NodeOperationError(this.getNode(), errorMessage);
-					} else if (response.error === 'UnauthorizedAccessError') {
-						// If there was an unauthorized access error
-						throw new NodeOperationError(this.getNode(), 'Unauthorized access. Please check your API credentials.');
-					} else {
-						// If there was a generic error
-						throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
+			if (response.status === 200 && response.data.success) {
+				// If request (code 200) was successful (success = true)
+				// return results in the output data array
+				const status = response.data.item?.status;
+				const searchId = response.data.item?._id;
+	
+				const outputData: INodeExecutionData[] = [
+					{
+						json: {
+							searchId: searchId,
+							status: status,
+							message: 'Email verification successful!',
+						}
 					}
+				];
+				return [outputData];
+
+				} else if (response.status === 200 && response.data.validationErrors) {
+					// If request (code 200) was successful but validationErrors = true
+					const errorMessage = response.data.validationErrors.map((error: any) => error.message).join(', ');
+					throw new NodeOperationError(this.getNode(), errorMessage);
+
+				} else if (response.status === 401) {
+					// If the request send an error 401 (Unauthorized)
+					throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
+				
+				} else {
+					// generic error
+					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
 				}
 			} catch (error) {
-				// If there's an error, set the response message to indicate an error occurred
-				item.json['response'] = {
-					success: false,
-					message: 'An error occurred while processing the item.',
-				};
+				// Si une erreur se produit, capturez-la ici et renvoyez-la en tant qu'exception pour n8n
+				throw new NodeOperationError(this.getNode(), 'An error occurred while processing the request.');
 			}
-		}
-		return this.prepareOutputData(items);
 	}
 }
