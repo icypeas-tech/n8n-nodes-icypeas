@@ -6,6 +6,24 @@ import {
 	NodeOperationError,
 } from 'n8n-workflow';
 import fetch from 'node-fetch'; // Import the fetch function
+import { URL } from 'url';
+import Crypto from 'crypto';
+
+
+
+// Function to generate the signature
+export function genSignature(
+    url: string,
+    method: string,
+    secret: string,
+    timestamp: string = new Date().toISOString()
+) : string {
+    const endpoint = new URL(url).pathname;
+    const payload = `${method}${endpoint}${timestamp}`.toLowerCase();
+    const sign = Crypto.createHmac("sha1", secret).update(payload).digest("hex");
+
+    return sign;
+};
 
 /*// interface to describe the response format  
 interface IApiResponse {
@@ -84,21 +102,6 @@ export class IcypeasSingle implements INodeType {
 		const URL = "https://app.icypeas.com/api/email-verification";
 		const METHOD = "POST";
 
-		// Function to generate the signature
-		const genSignature = (
-			url: string,
-			method: string,
-			secret: string,
-			timestamp: string = new Date().toISOString()
-		) : string => {
-			const URL = require('url').URL;
-			const Crypto = require('crypto');
-			const endpoint = new URL(url).pathname;
-			const payload = `${method}${endpoint}${timestamp}`.toLowerCase();
-			const sign = Crypto.createHmac("sha1", secret).update(payload).digest("hex");
-	
-			return sign;
-		};
 
 		try {
 			const email = this.getNodeParameter('email', 0) as string; // Get the email value from the node properties
