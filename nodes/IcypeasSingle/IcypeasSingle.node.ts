@@ -7,7 +7,7 @@ import {
 } from 'n8n-workflow';
 import fetch from 'node-fetch'; // Import the fetch function
 
-// interface to describe the response format  
+/*// interface to describe the response format  
 interface IApiResponse {
 	success: boolean;
 	item?: {
@@ -24,7 +24,7 @@ interface IApiResponse {
 	error?: string;
 	status?: number;
 	code?: string;
-}
+}*/
 
 export class IcypeasSingle implements INodeType {
 	description: INodeTypeDescription = {
@@ -123,7 +123,8 @@ export class IcypeasSingle implements INodeType {
 			});
 
 			// Parse the API response
-			const responseData = await response.json() as IApiResponse;
+			//const responseData = await response.json() as IApiResponse;
+			const responseData: any = await response.json();
 
 			// Check the API response and handle it accordingly
 			if (response.status === 200 && responseData.success) {
