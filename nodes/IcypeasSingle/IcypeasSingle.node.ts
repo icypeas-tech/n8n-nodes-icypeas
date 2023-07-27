@@ -7,6 +7,25 @@ import {
 } from 'n8n-workflow';
 import fetch from 'node-fetch'; // Import the fetch function
 
+// interface to describe the response format  
+interface IApiResponse {
+	success: boolean;
+	item?: {
+		_id: string;
+		status: string;
+	};
+	validationErrors?: {
+		expected: string;
+		type: string;
+		field: string;
+		message: string;
+	}[];
+	message?: string;
+	error?: string;
+	status?: number;
+	code?: string;
+}
+
 export class IcypeasSingle implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Icypeas-Single',
@@ -97,46 +116,47 @@ export class IcypeasSingle implements INodeType {
 			};
 
 			// Make the API call with the provided parameters (apiKey, apiSecret, userId, etc.)
-			const response = await this.helpers.request({
-				method: 'POST',
-				url: URL,
-				body: bodyParameters,
+			const response = await fetch(URL, {
+				method: "POST",
 				headers: headers,
+				body: bodyParameters,
 			});
 
-			if (response.status === 200 && response.data.success) {
-				// If request (code 200) was successful (success = true)
-				// return results in the output data array
-				const status = response.data.item?.status;
-				const searchId = response.data.item?._id;
-	
+			// Parse the API response
+			const responseData = await response.json() as IApiResponse;
+
+			// Check the API response and handle it accordingly
+			if (response.status === 200 && responseData.success) {
+				// If the request was successful (success = true)
+				// Return results in the output data array
+				const status = responseData.item?.status;
+				const searchId = responseData.item?._id;
+
 				const outputData: INodeExecutionData[] = [
 					{
 						json: {
 							searchId: searchId,
 							status: status,
 							message: 'Email verification successful!',
-						}
-					}
+						},
+					},
 				];
 				return [outputData];
-
-				} else if (response.status === 200 && response.data.validationErrors) {
-					// If request (code 200) was successful but validationErrors = true
-					const errorMessage = response.data.validationErrors.map((error: any) => error.message).join(', ');
-					throw new NodeOperationError(this.getNode(), errorMessage);
-
-				} else if (response.status === 401) {
-					// If the request send an error 401 (Unauthorized)
-					throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
-				
-				} else {
-					// generic error
-					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
-				}
-			} catch (error) {
-				// Si une erreur se produit, capturez-la ici et renvoyez-la en tant qu'exception pour n8n
-				throw new NodeOperationError(this.getNode(), 'An error occurred while processing the request.');
+			} else if (response.status === 200 && responseData.validationErrors) {
+				// If the request was successful but validationErrors = true
+				const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
+				throw new NodeOperationError(this.getNode(), errorMessage);
+			} else if (response.status === 401) {
+				// If the request returns an error 401 (Unauthorized)
+				throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
+			} else {
+				// Generic error
+				throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
 			}
+		} catch (error) {
+			// If an error occurs, capture it here and throw it as an exception for n8n
+			throw new NodeOperationError(this.getNode(), 'An error occurred while processing the request.');
+		}
+
 	}
 }
