@@ -59,8 +59,12 @@ export class IcypeasApi implements ICredentialType {
 	// The block below tells how this credential can be tested
 	test: ICredentialTestRequest = {
 		request: {
-			baseURL: 'https://example.com/',
-			url: '',
+			baseURL: 'https://app.icypeas.com/api',
+			url: '/email-verification',
+			method: 'POST',
+			body: {
+				data: [{ email: '' }],
+			},
 		},
 	};
 

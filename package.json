@@ -26,10 +26,10 @@
   "n8n": {
     "n8nNodesApiVersion": 1,
     "credentials": [
-      "dist/credentials/Icypeas.credentials.js"
+      "dist/credentials/IcypeasApi.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/Icypeas.node.js"
+      "dist/nodes/IcypeasSingle/IcypeasSingle.node.js"
     ]
   },
   "devDependencies": {
