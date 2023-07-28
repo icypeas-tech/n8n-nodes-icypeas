@@ -6,8 +6,8 @@ import {
 } from 'n8n-workflow';
 
 export class IcypeasApi implements ICredentialType {
-	name = 'credentialsIcypeasApi';
-	displayName = 'Credentials Icypeas API';
+	name = 'icypeasApi';
+	displayName = 'Icypeas API';
 	properties: INodeProperties[] = [
 		// The credentials to get from user and save encrypted.
 		// Properties can be defined exactly in the same way
