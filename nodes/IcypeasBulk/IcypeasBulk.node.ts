@@ -5,6 +5,7 @@ import {
 	INodeTypeDescription,
 	NodeOperationError,
 } from 'n8n-workflow';
+import { generateSignature } from '../../utils'; // Import the generateSignature function
 
 export class IcypeasBulk implements INodeType {
 	description: INodeTypeDescription = {
@@ -37,40 +38,87 @@ export class IcypeasBulk implements INodeType {
 	// with whatever the user has entered.
 	// You can make async calls and use `await`.
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
-		const items = this.getInputData();
-
-		let item: INodeExecutionData;
-		let myString: string;
-
-		// Iterates over all input items and add the key "myString" with the
-		// value the parameter "myString" resolves to.
-		// (This could be a different value for each item in case it contains an expression)
-		for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
-			try {
-				myString = this.getNodeParameter('myString', itemIndex, '') as string;
-				item = items[itemIndex];
-
-				item.json['myString'] = myString;
-			} catch (error) {
-				// This node should never fail but we want to showcase how
-				// to handle errors.
-				if (this.continueOnFail()) {
-					items.push({ json: this.getInputData(itemIndex)[0].json, error, pairedItem: itemIndex });
-				} else {
-					// Adding `itemIndex` allows other workflows to handle this error
-					if (error.context) {
-						// If the error thrown already contains the context property,
-						// only append the itemIndex
-						error.context.itemIndex = itemIndex;
-						throw error;
-					}
-					throw new NodeOperationError(this.getNode(), error, {
-						itemIndex,
-					});
-				}
-			}
+		const credentials = await this.getCredentials('icypeasApi');
+		if (!credentials) {
+			throw new NodeOperationError(this.getNode(), 'Credentials are missing.');
 		}
 
-		return this.prepareOutputData(items);
+		const apiKey = credentials.apiKey as string;
+      	const apiSecret = credentials.apiSecret as string;
+
+		//const userId = this.getNodeParameter('userId', 0) as string;
+
+		const URL = "https://app.icypeas.com/api/email-verification";
+		const METHOD = "POST";
+
+		try {
+			const searchType = this.getNodeParameter('searchType', 0);
+
+			// Generate the timestamp and signature
+			const timestamp = new Date().toISOString();
+			const signature = generateSignature(URL, METHOD, apiSecret, timestamp);
+
+			const headers = {
+					"Content-Type": "application/json",
+					Authorization: `${apiKey}:${signature}`,
+					"X-ROCK-TIMESTAMP": timestamp,
+			};
+
+			if ( searchType === 'email-verification') {
+				const email = this.getNodeParameter('email', 0) as string; // Get the email value from the node properties
+				const bodyParameters = JSON.stringify({ email });
+
+
+				// Make the API call with the provided parameters (apiKey, apiSecret, userId, etc.)
+				const response = await fetch(URL, {
+					method: "POST",
+					headers: headers,
+					body: bodyParameters,
+				});
+
+				// Parse the API response
+				//const responseData = await response.json() as IApiResponse;
+				const responseData: any = await response.json();
+
+				// Check the API response and handle it accordingly
+				if (response.status === 200 && responseData.success) {
+					// If the request was successful (success = true)
+					// Return results in the output data array
+					const status = responseData.item?.status;
+					const searchId = responseData.item?._id;
+
+					const outputData: INodeExecutionData[] = [
+						{
+							json: {
+								searchId: searchId,
+								status: status,
+								message: 'Email verification successful!',
+							},
+						},
+					];
+					return [outputData];
+				
+
+				} else if (response.status === 200 && responseData.validationErrors) {
+					// If the request was successful but validationErrors = true
+					const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
+					throw new NodeOperationError(this.getNode(), errorMessage);
+				} else if (response.status === 401) {
+					// If the request returns an error 401 (Unauthorized)
+					throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
+				} else {
+					// Generic error
+					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
+				}
+
+			}else{
+				throw new NodeOperationError(this.getNode(), 'The search type you selected is not implemented yet.');
+			}
+
+		} catch (error) {
+			// If an error occurs, capture it here and throw it as an exception for n8n
+			throw new NodeOperationError(this.getNode(), 'An error occurred while processing the request.');
+		}
+
 	}
 }

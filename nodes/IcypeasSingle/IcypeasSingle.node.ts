@@ -5,7 +5,6 @@ import {
 	INodeTypeDescription,
 	NodeOperationError,
 } from 'n8n-workflow';
-import fetch from 'node-fetch'; // Import the fetch function
 import { generateSignature } from '../../utils'; // Import the generateSignature function
 
 export class IcypeasSingle implements INodeType {
