@@ -238,10 +238,10 @@ export class IcypeasSingle implements INodeType {
 					Authorization: `${apiKey}:${signature}`,
 					"X-ROCK-TIMESTAMP": timestamp,
 				};
-				const domainOrCompany = this.getNodeParameter('domain', 0) as string; // Get the email value from the node properties
+				const domainOrCompany = this.getNodeParameter('domain', 0) as string;
 				const bodyParameters = JSON.stringify({ domainOrCompany });
 
-				const response = await fetch(URL_email_search, {
+				const response = await fetch(URL_domain_search, {
 					method: "POST",
 					headers: headers,
 					body: bodyParameters,
