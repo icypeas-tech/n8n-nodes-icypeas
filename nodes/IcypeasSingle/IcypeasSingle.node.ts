@@ -135,10 +135,10 @@ export class IcypeasSingle implements INodeType {
 
 		try {
 			const searchType = this.getNodeParameter('searchType', 0);
-			const timestamp = new Date().toISOString();
 
 			if ( searchType === 'email-verification') {
-			// Generate the timestamp and signature
+				const timestamp = new Date().toISOString();
+				// Generate the timestamp and signature
 				const signature = generateSignature(URL_email_verif, METHOD, apiSecret, timestamp);
 
 				const headers = {
@@ -186,6 +186,7 @@ export class IcypeasSingle implements INodeType {
 				}
 
 			}else if ( searchType === 'email-search') {
+				const timestamp = new Date().toISOString();
 				const signature = generateSignature(URL_email_search, METHOD, apiSecret, timestamp);
 				const headers = {
 					"Content-Type": "application/json",
@@ -195,8 +196,8 @@ export class IcypeasSingle implements INodeType {
 
 				const firstname = this.getNodeParameter('firstname', 0) as string; 
 				const lastname = this.getNodeParameter('lastname', 0) as string; 
-				const domain = this.getNodeParameter('domain', 0) as string; 
-				const bodyParameters = JSON.stringify({ firstname, lastname, domain });
+				const domainOrCompany = this.getNodeParameter('domain', 0) as string; 
+				const bodyParameters = JSON.stringify({ firstname, lastname, domainOrCompany });
 
 				const response = await fetch(URL_email_search, {
 					method: "POST",
@@ -230,14 +231,15 @@ export class IcypeasSingle implements INodeType {
 			}
 			
 			else{
+				const timestamp = new Date().toISOString();
 				const signature = generateSignature(URL_domain_search, METHOD, apiSecret, timestamp);
 				const headers = {
 					"Content-Type": "application/json",
 					Authorization: `${apiKey}:${signature}`,
 					"X-ROCK-TIMESTAMP": timestamp,
 				};
-				const domain = this.getNodeParameter('domain', 0) as string; // Get the email value from the node properties
-				const bodyParameters = JSON.stringify({ domain });
+				const domainOrCompany = this.getNodeParameter('domain', 0) as string; // Get the email value from the node properties
+				const bodyParameters = JSON.stringify({ domainOrCompany });
 
 				const response = await fetch(URL_email_search, {
 					method: "POST",
