@@ -67,6 +67,49 @@ export class IcypeasSingle implements INodeType {
 					},
 				}
 			},
+			{
+				displayName: 'First Name',
+				name: 'firstname',
+				type: 'string',
+				default: '',
+				placeholder: 'John',
+				displayOptions: {
+					show: {
+						searchType: [
+							'email-search',
+						]
+					},
+				}
+			},
+			{
+				displayName: 'Last Name',
+				name: 'lastname',
+				type: 'string',
+				default: '',
+				placeholder: 'Doe',
+				displayOptions: {
+					show: {
+						searchType: [
+							'email-search',
+						]
+					},
+				}
+			},
+			{
+				displayName: 'Domain Name',
+				name: 'domain',
+				type: 'string',
+				default: '',
+				placeholder: 'icypeas.com',
+				displayOptions: {
+					show: {
+						searchType: [
+							'email-search',
+							'domain-search',
+						]
+					},
+				}
+			},
 		],
 	};
 
@@ -76,7 +119,7 @@ export class IcypeasSingle implements INodeType {
 	// You can make async calls and use `await`.
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const credentials = await this.getCredentials('icypeasApi');
-		if (!credentials) {
+		if (!credentials || !credentials.apiKey || !credentials.apiSecret) {
 			throw new NodeOperationError(this.getNode(), 'Credentials are missing.');
 		}
 
@@ -85,29 +128,31 @@ export class IcypeasSingle implements INodeType {
 
 		//const userId = this.getNodeParameter('userId', 0) as string;
 
-		const URL = "https://app.icypeas.com/api/email-verification";
+		const URL_email_verif = "https://app.icypeas.com/api/email-verification";
+		const URL_email_search = "https://app.icypeas.com/api/email-search";
+		const URL_domain_search = "https://app.icypeas.com/api/domain-search";
 		const METHOD = "POST";
 
 		try {
 			const searchType = this.getNodeParameter('searchType', 0);
-
-			// Generate the timestamp and signature
 			const timestamp = new Date().toISOString();
-			const signature = generateSignature(URL, METHOD, apiSecret, timestamp);
 
-			const headers = {
+			if ( searchType === 'email-verification') {
+			// Generate the timestamp and signature
+				const signature = generateSignature(URL_email_verif, METHOD, apiSecret, timestamp);
+
+				const headers = {
 					"Content-Type": "application/json",
 					Authorization: `${apiKey}:${signature}`,
 					"X-ROCK-TIMESTAMP": timestamp,
-			};
+				};
 
-			if ( searchType === 'email-verification') {
 				const email = this.getNodeParameter('email', 0) as string; // Get the email value from the node properties
 				const bodyParameters = JSON.stringify({ email });
 
 
 				// Make the API call with the provided parameters (apiKey, apiSecret, userId, etc.)
-				const response = await fetch(URL, {
+				const response = await fetch(URL_email_verif, {
 					method: "POST",
 					headers: headers,
 					body: bodyParameters,
@@ -148,8 +193,116 @@ export class IcypeasSingle implements INodeType {
 					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
 				}
 
-			}else{
-				throw new NodeOperationError(this.getNode(), 'The search type you selected is not implemented yet.');
+			}else if ( searchType === 'email-search') {
+				// Generate the timestamp and signature
+				const signature = generateSignature(URL_email_search, METHOD, apiSecret, timestamp);
+				const headers = {
+					"Content-Type": "application/json",
+					Authorization: `${apiKey}:${signature}`,
+					"X-ROCK-TIMESTAMP": timestamp,
+				};
+
+				const firstname = this.getNodeParameter('firstname', 0) as string; // Get the email value from the node properties
+				const lastname = this.getNodeParameter('lastname', 0) as string; // Get the email value from the node properties
+				const domain = this.getNodeParameter('domain', 0) as string; // Get the email value from the node properties
+				const bodyParameters = JSON.stringify({ firstname, lastname, domain });
+
+
+				// Make the API call with the provided parameters (apiKey, apiSecret, userId, etc.)
+				const response = await fetch(URL_email_search, {
+					method: "POST",
+					headers: headers,
+					body: bodyParameters,
+				});
+
+				// Parse the API response
+				//const responseData = await response.json() as IApiResponse;
+				const responseData: any = await response.json();
+
+				// Check the API response and handle it accordingly
+				if (response.status === 200 && responseData.success) {
+					// If the request was successful (success = true)
+					// Return results in the output data array
+					const status = responseData.item?.status;
+					const searchId = responseData.item?._id;
+
+					const outputData: INodeExecutionData[] = [
+						{
+							json: {
+								searchId: searchId,
+								status: status,
+								message: 'Email search successful!',
+							},
+						},
+					];
+					return [outputData];
+
+				} else if (response.status === 200 && responseData.validationErrors) {
+					// If the request was successful but validationErrors = true
+					const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
+					throw new NodeOperationError(this.getNode(), errorMessage);
+				} else if (response.status === 401) {
+					// If the request returns an error 401 (Unauthorized)
+					throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
+				} else {
+					// Generic error
+					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
+				}
+			}
+			
+			else{
+				// Generate the timestamp and signature
+				const signature = generateSignature(URL_domain_search, METHOD, apiSecret, timestamp);
+				const headers = {
+					"Content-Type": "application/json",
+					Authorization: `${apiKey}:${signature}`,
+					"X-ROCK-TIMESTAMP": timestamp,
+				};
+
+				const domain = this.getNodeParameter('domain', 0) as string; // Get the email value from the node properties
+				const bodyParameters = JSON.stringify({ domain });
+
+				// Make the API call with the provided parameters (apiKey, apiSecret, userId, etc.)
+				const response = await fetch(URL_email_search, {
+					method: "POST",
+					headers: headers,
+					body: bodyParameters,
+				});
+
+				// Parse the API response
+				//const responseData = await response.json() as IApiResponse;
+				const responseData: any = await response.json();
+
+				// Check the API response and handle it accordingly
+				if (response.status === 200 && responseData.success) {
+					// If the request was successful (success = true)
+					// Return results in the output data array
+					const status = responseData.item?.status;
+					const searchId = responseData.item?._id;
+
+					const outputData: INodeExecutionData[] = [
+						{
+							json: {
+								searchId: searchId,
+								status: status,
+								message: 'Domain search successful!',
+							},
+						},
+					];
+					return [outputData];
+
+				} else if (response.status === 200 && responseData.validationErrors) {
+					// If the request was successful but validationErrors = true
+					const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
+					throw new NodeOperationError(this.getNode(), errorMessage);
+				} else if (response.status === 401) {
+					// If the request returns an error 401 (Unauthorized)
+					throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
+				} else {
+					// Generic error
+					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
+				}
+				
 			}
 
 		} catch (error) {
@@ -166,21 +319,3 @@ export class IcypeasSingle implements INodeType {
 	}
 }
 
-/*// interface to describe the response format  
-interface IApiResponse {
-	success: boolean;
-	item?: {
-		_id: string;
-		status: string;
-	};
-	validationErrors?: {
-		expected: string;
-		type: string;
-		field: string;
-		message: string;
-	}[];
-	message?: string;
-	error?: string;
-	status?: number;
-	code?: string;
-}*/
