@@ -9,14 +9,14 @@ import { generateSignature } from '../../utils'; // Import the generateSignature
 
 export class IcypeasSingle implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Icypeas-Single',
+		displayName: 'Icypeas Single Search',
 		name: 'IcypeasSingle',
 		icon: 'file:logo.svg',
 		group: ['transform'],
 		version: 1,
 		description: 'Icypeas-Single Node for n8n will take care of the single searches (email verification, email search & domain search) with the Icypeas\'s API',
 		defaults: {
-			name: 'Icypeas-SingleSearch',
+			name: 'Icypeas : Single Search',
 		},
 		inputs: ['main'],
 		outputs: ['main'],
@@ -154,9 +154,15 @@ export class IcypeasSingle implements INodeType {
 
 		} catch (error) {
 			// If an error occurs, capture it here and throw it as an exception for n8n
-			throw new NodeOperationError(this.getNode(), 'An error occurred while processing the request.');
-		}
+			if (error instanceof NodeOperationError && error.message === 'Unauthorized access.') {
+				throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
+			} else if (error instanceof NodeOperationError && error.message === 'The search type you selected is not implemented yet.') {
+				throw new NodeOperationError(this.getNode(), 'The search type you selected is not implemented yet.');
+			} else if (error instanceof NodeOperationError && error.message === 'Credentials are missing.') {
+				throw new NodeOperationError(this.getNode(), 'Credentials are missing.');
+			}throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
 
+		}
 	}
 }
 
