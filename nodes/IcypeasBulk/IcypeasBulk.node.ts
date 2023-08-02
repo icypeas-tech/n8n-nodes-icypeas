@@ -93,18 +93,17 @@ export class IcypeasBulk implements INodeType {
 			const task = this.getNodeParameter('task', 0);
 			const name = this.getNodeParameter('name', 0);
 
-			// Generate the timestamp and signature
-			const timestamp = new Date().toISOString();
-			const signature = generateSignature(URL, METHOD, apiSecret, timestamp);
+			if ( task === 'email-search') {
+				// Read data from the input items
+							// Generate the timestamp and signature
+				const timestamp = new Date().toISOString();
+				const signature = generateSignature(URL, METHOD, apiSecret, timestamp);
 
-			const headers = {
+				const headers = {
 					"Content-Type": "application/json",
 					Authorization: `${apiKey}:${signature}`,
 					"X-ROCK-TIMESTAMP": timestamp,
-			};
-
-			if ( task === 'email-search') {
-				// Read data from the input items
+				};
 				const items = this.getInputData();
 
 				// Prepare the data for the API request
