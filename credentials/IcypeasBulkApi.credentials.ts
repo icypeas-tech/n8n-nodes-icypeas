@@ -8,7 +8,7 @@ import {
 import { generateSignature } from '../utils'; // Import the generateSignature function
 
 export class IcypeasBulkApi implements ICredentialType {
-	name = 'icypeasbulkApi';
+	name = 'icypeasBulkApi';
 	displayName = 'Icypeas Bulk API';
 	properties: INodeProperties[] = [
 		// The credentials to get from user and save encrypted.
