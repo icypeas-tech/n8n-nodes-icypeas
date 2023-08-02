@@ -15,20 +15,20 @@ export class IcypeasApi implements ICredentialType {
 		// Properties can be defined exactly in the same way
 		// as node properties.
 		{
-			displayName: 'API Secret',
-			name: 'apiSecret',
-			type: 'string',
-			typeOptions: {
-			  	password: true,
-			},
-			default: '',
-		},
-		{
 			displayName: 'API Key',
 			name: 'apiKey',
 			type: 'string',
 			typeOptions: {
 				password: true,
+			},
+			default: '',
+		},
+		{
+			displayName: 'API Secret',
+			name: 'apiSecret',
+			type: 'string',
+			typeOptions: {
+			  	password: true,
 			},
 			default: '',
 		},
