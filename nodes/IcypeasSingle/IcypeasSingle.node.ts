@@ -125,7 +125,6 @@ export class IcypeasSingle implements INodeType {
 		}
 		const apiKey = credentials.apiKey as string;
       	const apiSecret = credentials.apiSecret as string;
-		//const userId = this.getNodeParameter('userId', 0) as string;
 
 		const URL_email_verif = "https://app.icypeas.com/api/email-verification";
 		const URL_email_search = "https://app.icypeas.com/api/email-search";
