@@ -118,19 +118,19 @@ export class IcypeasSingle implements INodeType {
 	// with whatever the user has entered.
 	// You can make async calls and use `await`.
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
+		//Get the credentials the user provided for this node :  apiKey and apiSecret
 		const credentials = await this.getCredentials('icypeasApi');
 		if (!credentials || !credentials.apiKey || !credentials.apiSecret) {
 			throw new NodeOperationError(this.getNode(), 'Credentials are missing.');
 		}
-
 		const apiKey = credentials.apiKey as string;
       	const apiSecret = credentials.apiSecret as string;
-
 		//const userId = this.getNodeParameter('userId', 0) as string;
 
 		const URL_email_verif = "https://app.icypeas.com/api/email-verification";
 		const URL_email_search = "https://app.icypeas.com/api/email-search";
 		const URL_domain_search = "https://app.icypeas.com/api/domain-search";
+		
 		const METHOD = "POST";
 
 		try {
@@ -150,8 +150,7 @@ export class IcypeasSingle implements INodeType {
 				const email = this.getNodeParameter('email', 0) as string; // Get the email value from the node properties
 				const bodyParameters = JSON.stringify({ email });
 
-
-				// Make the API call with the provided parameters (apiKey, apiSecret, userId, etc.)
+				// Make the API call 
 				const response = await fetch(URL_email_verif, {
 					method: "POST",
 					headers: headers,
@@ -159,16 +158,13 @@ export class IcypeasSingle implements INodeType {
 				});
 
 				// Parse the API response
-				//const responseData = await response.json() as IApiResponse;
 				const responseData: any = await response.json();
 
 				// Check the API response and handle it accordingly
 				if (response.status === 200 && responseData.success) {
-					// If the request was successful (success = true)
-					// Return results in the output data array
+					// If the request was successful (success = true) return results in the output data array
 					const status = responseData.item?.status;
 					const searchId = responseData.item?._id;
-
 					const outputData: INodeExecutionData[] = [
 						{
 							json: {
@@ -180,21 +176,16 @@ export class IcypeasSingle implements INodeType {
 					];
 					return [outputData];
 				
-
-				} else if (response.status === 200 && responseData.validationErrors) {
-					// If the request was successful but validationErrors = true
+				} else if (response.status === 200 && responseData.validationErrors) { // If the request was successful but validationErrors = true
 					const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
 					throw new NodeOperationError(this.getNode(), errorMessage);
 				} else if (response.status === 401) {
-					// If the request returns an error 401 (Unauthorized)
 					throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
-				} else {
-					// Generic error
+				} else { // Generic error
 					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
 				}
 
 			}else if ( searchType === 'email-search') {
-				// Generate the timestamp and signature
 				const signature = generateSignature(URL_email_search, METHOD, apiSecret, timestamp);
 				const headers = {
 					"Content-Type": "application/json",
@@ -202,27 +193,19 @@ export class IcypeasSingle implements INodeType {
 					"X-ROCK-TIMESTAMP": timestamp,
 				};
 
-				const firstname = this.getNodeParameter('firstname', 0) as string; // Get the email value from the node properties
-				const lastname = this.getNodeParameter('lastname', 0) as string; // Get the email value from the node properties
-				const domain = this.getNodeParameter('domain', 0) as string; // Get the email value from the node properties
+				const firstname = this.getNodeParameter('firstname', 0) as string; 
+				const lastname = this.getNodeParameter('lastname', 0) as string; 
+				const domain = this.getNodeParameter('domain', 0) as string; 
 				const bodyParameters = JSON.stringify({ firstname, lastname, domain });
 
-
-				// Make the API call with the provided parameters (apiKey, apiSecret, userId, etc.)
 				const response = await fetch(URL_email_search, {
 					method: "POST",
 					headers: headers,
 					body: bodyParameters,
 				});
 
-				// Parse the API response
-				//const responseData = await response.json() as IApiResponse;
 				const responseData: any = await response.json();
-
-				// Check the API response and handle it accordingly
 				if (response.status === 200 && responseData.success) {
-					// If the request was successful (success = true)
-					// Return results in the output data array
 					const status = responseData.item?.status;
 					const searchId = responseData.item?._id;
 
@@ -234,52 +217,39 @@ export class IcypeasSingle implements INodeType {
 								message: 'Email search successful!',
 							},
 						},
-					];
-					return [outputData];
+					];return [outputData];
 
 				} else if (response.status === 200 && responseData.validationErrors) {
-					// If the request was successful but validationErrors = true
 					const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
 					throw new NodeOperationError(this.getNode(), errorMessage);
 				} else if (response.status === 401) {
-					// If the request returns an error 401 (Unauthorized)
 					throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
 				} else {
-					// Generic error
 					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
 				}
 			}
 			
 			else{
-				// Generate the timestamp and signature
 				const signature = generateSignature(URL_domain_search, METHOD, apiSecret, timestamp);
 				const headers = {
 					"Content-Type": "application/json",
 					Authorization: `${apiKey}:${signature}`,
 					"X-ROCK-TIMESTAMP": timestamp,
 				};
-
 				const domain = this.getNodeParameter('domain', 0) as string; // Get the email value from the node properties
 				const bodyParameters = JSON.stringify({ domain });
 
-				// Make the API call with the provided parameters (apiKey, apiSecret, userId, etc.)
 				const response = await fetch(URL_email_search, {
 					method: "POST",
 					headers: headers,
 					body: bodyParameters,
 				});
 
-				// Parse the API response
-				//const responseData = await response.json() as IApiResponse;
 				const responseData: any = await response.json();
 
-				// Check the API response and handle it accordingly
 				if (response.status === 200 && responseData.success) {
-					// If the request was successful (success = true)
-					// Return results in the output data array
 					const status = responseData.item?.status;
 					const searchId = responseData.item?._id;
-
 					const outputData: INodeExecutionData[] = [
 						{
 							json: {
@@ -290,16 +260,12 @@ export class IcypeasSingle implements INodeType {
 						},
 					];
 					return [outputData];
-
 				} else if (response.status === 200 && responseData.validationErrors) {
-					// If the request was successful but validationErrors = true
 					const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
 					throw new NodeOperationError(this.getNode(), errorMessage);
 				} else if (response.status === 401) {
-					// If the request returns an error 401 (Unauthorized)
 					throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
 				} else {
-					// Generic error
 					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
 				}
 				
@@ -314,7 +280,6 @@ export class IcypeasSingle implements INodeType {
 			} else if (error instanceof NodeOperationError && error.message === 'Credentials are missing.') {
 				throw new NodeOperationError(this.getNode(), 'Credentials are missing.');
 			}throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
-
 		}
 	}
 }
