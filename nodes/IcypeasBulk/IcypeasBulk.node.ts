@@ -106,7 +106,7 @@ export class IcypeasBulk implements INodeType {
 			  		const company = item.json.company || '';
 			  		return [firstName, lastName, company];
 				});*/
-				
+
 				const data : any[][] = [];
 				for (let i = 0; i < inputData.length; i++) {
 					const item = inputData[i];
@@ -116,7 +116,7 @@ export class IcypeasBulk implements INodeType {
 
 					data.push([firstName, lastName, company]);
 				}
-
+				console.log(data);
 				const bodyParameters = JSON.stringify({ userId, name, task, data });
 
 				const response = await fetch(URL, {
