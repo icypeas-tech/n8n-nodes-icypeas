@@ -72,7 +72,7 @@ export class IcypeasBulk implements INodeType {
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const credentials = await this.getCredentials('icypeasBulkApi');
-		if (!credentials) {
+		if (!credentials || !credentials.apiKey || !credentials.apiSecret || !credentials.userId) {
 			throw new NodeOperationError(this.getNode(), 'Credentials are missing.');
 		}
 
@@ -85,28 +85,21 @@ export class IcypeasBulk implements INodeType {
 
 		try {
 			const task = this.getNodeParameter('task', 0);
-			const name = this.getNodeParameter('name', 0);
+			let name = this.getNodeParameter('name', 0);
+			if (!name) {
+				name = 'Test';
+			}
+			const timestamp = new Date().toISOString();
+			const signature = generateSignature(URL, METHOD, apiSecret, timestamp);
+
+			const headers = {
+				"Content-Type": "application/json",
+				Authorization: `${apiKey}:${signature}`,
+				"X-ROCK-TIMESTAMP": timestamp,
+			};
 
 			if ( task === 'email-search') {
-				const timestamp = new Date().toISOString();
-				const signature = generateSignature(URL, METHOD, apiSecret, timestamp);
-
-				const headers = {
-					"Content-Type": "application/json",
-					Authorization: `${apiKey}:${signature}`,
-					"X-ROCK-TIMESTAMP": timestamp,
-				};
 				const inputData = this.getInputData(0); //O : index of the first input
-
-				// Prepare the data for the API request
-
-				/*const data = items.map((item) => {
-			  		const firstName = item.json.firstName || '';
-			  		const lastName = item.json.lastName || '';
-			  		const company = item.json.company || '';
-			  		return [firstName, lastName, company];
-				});*/
-
 				const data : any[][] = [];
 				for (let i = 0; i < inputData.length; i++) {
 					const item = inputData[i];
@@ -132,11 +125,10 @@ export class IcypeasBulk implements INodeType {
 					// If the request was successful (success = true) return results in the output data array
 					const status = responseData.status;
         			const fileId = responseData.file;
-
 					const outputData: INodeExecutionData[] = [
 						{
 							json: {
-								message: 'Bulk search successful!',
+								message: 'Bulk email search successful!',
 								status: status,
 								fileId: fileId,
 							},
@@ -154,8 +146,53 @@ export class IcypeasBulk implements INodeType {
 				} else {
 					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
 				}
+			}else if ( task === 'email-verification') {
+				const inputData = this.getInputData(0); //O : index of the first input
+				const data : any[][] = [];
+				for (let i = 0; i < inputData.length; i++) {
+					const item = inputData[i];
+					const email = item.json.email || '';
+					data.push([email]);
+				}
+				console.log(data);
+				const bodyParameters = JSON.stringify({ userId, name, task, data });
+				console.log(bodyParameters);
 
-			}else{
+				const response = await fetch(URL, {
+					method: "POST",
+					headers: headers,
+					body: bodyParameters,
+				});
+
+				const responseData: any = await response.json();
+
+				if (response.status === 200 && responseData.success) {
+					// If the request was successful (success = true) return results in the output data array
+					const status = responseData.status;
+        			const fileId = responseData.file;
+					const outputData: INodeExecutionData[] = [
+						{
+							json: {
+								message: 'Bulk email verification successful!',
+								status: status,
+								fileId: fileId,
+							},
+						},
+					];
+					return [outputData];
+
+				} else if (response.status === 200 && responseData.validationErrors) {
+					console.log(responseData.validationErrors);
+					const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
+					//throw new NodeOperationError(this.getNode(), errorMessage);
+					throw new Error(errorMessage);
+				} else if (response.status === 401) {
+					throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
+				} else {
+					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
+				}
+			}
+			else{
 				throw new NodeOperationError(this.getNode(), 'The search type you selected is not implemented yet.');
 			}
 		} catch (error) {
