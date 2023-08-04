@@ -71,11 +71,13 @@ export class IcypeasBulk implements INodeType {
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
+		console.log('Starting IcypeasBulk node execution...');
 		const credentials = await this.getCredentials('icypeasBulkApi');
 		if (!credentials) {
 			throw new NodeOperationError(this.getNode(), 'Credentials are missing.');
 		}
 
+		console.log('Fetched credentials:', credentials);
 		const apiKey = credentials.apiKey as string;
       	const apiSecret = credentials.apiSecret as string;
 		const userId = credentials.userId as string;
@@ -97,6 +99,7 @@ export class IcypeasBulk implements INodeType {
 					"X-ROCK-TIMESTAMP": timestamp,
 				};
 				const items = this.getInputData();
+				console.log('Items:', items);
 
 				// Prepare the data for the API request
 				const data = items.map((item) => {
@@ -134,8 +137,10 @@ export class IcypeasBulk implements INodeType {
 
 				} else if (response.status === 200 && responseData.validationErrors) {
 					const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
+					console.log('An error occurred:', errorMessage);
 					throw new NodeOperationError(this.getNode(), errorMessage);
 				} else if (response.status === 401) {
+					console.log('Unauthorized access.');
 					throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
 				} else {
 					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
