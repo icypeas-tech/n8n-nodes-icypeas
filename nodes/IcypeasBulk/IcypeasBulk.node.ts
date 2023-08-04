@@ -147,11 +147,11 @@ export class IcypeasBulk implements INodeType {
 				}
 			}else if ( task === 'email-verification') {
 				const inputData = this.getInputData(0); //O : index of the first input
-				const data : any[][] = [];
+				const data : any[] = [];
 				for (let i = 0; i < inputData.length; i++) {
 					const item = inputData[i];
 					const email = item.json.email || '';
-					data.push([email]);
+					data.push(email);
 				}
 				console.log(data);
 				const bodyParameters = JSON.stringify({ userId, name, task, data });
