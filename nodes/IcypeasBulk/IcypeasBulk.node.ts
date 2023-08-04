@@ -147,7 +147,8 @@ export class IcypeasBulk implements INodeType {
 				} else if (response.status === 200 && responseData.validationErrors) {
 					console.log(responseData.validationErrors);
 					const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
-					throw new NodeOperationError(this.getNode(), errorMessage);
+					//throw new NodeOperationError(this.getNode(), errorMessage);
+					throw new Error(errorMessage);
 				} else if (response.status === 401) {
 					throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
 				} else {
