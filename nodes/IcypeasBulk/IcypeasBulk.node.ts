@@ -191,13 +191,14 @@ export class IcypeasBulk implements INodeType {
 			}
 			else{
 				const inputData = this.getInputData(0); //O : index of the first input
+				console.log('Input Data:', inputData);
 				const data : any[][] = [];
 				for (let i = 0; i < inputData.length; i++) {
 					const item = inputData[i];
 					const company = item.json.company || '';
 					data.push([company]);
 				}
-				console.log(data);
+				console.log('Data :' , data);
 				const bodyParameters = JSON.stringify({ userId, name, task, data });
 				console.log(bodyParameters);
 
@@ -208,6 +209,7 @@ export class IcypeasBulk implements INodeType {
 				});
 
 				const responseData: any = await response.json();
+				console.log('API Response:', responseData);
 
 				if (response.status === 200 && responseData.success) {
 					const status = responseData.status;
