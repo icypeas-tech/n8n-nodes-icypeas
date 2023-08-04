@@ -120,7 +120,6 @@ export class IcypeasBulk implements INodeType {
 				});
 
 				const responseData: any = await response.json();
-
 				if (response.status === 200 && responseData.success) {
 					// If the request was successful (success = true) return results in the output data array
 					const status = responseData.status;
@@ -165,9 +164,7 @@ export class IcypeasBulk implements INodeType {
 				});
 
 				const responseData: any = await response.json();
-
 				if (response.status === 200 && responseData.success) {
-					// If the request was successful (success = true) return results in the output data array
 					const status = responseData.status;
         			const fileId = responseData.file;
 					const outputData: INodeExecutionData[] = [
@@ -193,7 +190,49 @@ export class IcypeasBulk implements INodeType {
 				}
 			}
 			else{
-				throw new NodeOperationError(this.getNode(), 'The search type you selected is not implemented yet.');
+				const inputData = this.getInputData(0); //O : index of the first input
+				const data : any[][] = [];
+				for (let i = 0; i < inputData.length; i++) {
+					const item = inputData[i];
+					const company = item.json.company || '';
+					data.push([company]);
+				}
+				console.log(data);
+				const bodyParameters = JSON.stringify({ userId, name, task, data });
+				console.log(bodyParameters);
+
+				const response = await fetch(URL, {
+					method: "POST",
+					headers: headers,
+					body: bodyParameters,
+				});
+
+				const responseData: any = await response.json();
+
+				if (response.status === 200 && responseData.success) {
+					const status = responseData.status;
+        			const fileId = responseData.file;
+					const outputData: INodeExecutionData[] = [
+						{
+							json: {
+								message: 'Bulk domain search successful!',
+								status: status,
+								fileId: fileId,
+							},
+						},
+					];
+					return [outputData];
+
+				} else if (response.status === 200 && responseData.validationErrors) {
+					console.log(responseData.validationErrors);
+					const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
+					//throw new NodeOperationError(this.getNode(), errorMessage);
+					throw new Error(errorMessage);
+				} else if (response.status === 401) {
+					throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
+				} else {
+					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
+				}
 			}
 		} catch (error) {
 			if (error instanceof NodeOperationError && error.message === 'Unauthorized access.') {
