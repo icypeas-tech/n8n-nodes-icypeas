@@ -113,10 +113,6 @@ export class IcypeasSingle implements INodeType {
 		],
 	};
 
-	// The function below is responsible for actually doing whatever this node
-	// is supposed to do. In this case, we're just appending the `myString` property
-	// with whatever the user has entered.
-	// You can make async calls and use `await`.
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		//Get the credentials the user provided for this node :  apiKey and apiSecret
 		const credentials = await this.getCredentials('icypeasApi');
@@ -269,9 +265,7 @@ export class IcypeasSingle implements INodeType {
 				} else {
 					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
 				}
-				
 			}
-
 		} catch (error) {
 			// If an error occurs, capture it here and throw it as an exception for n8n
 			if (error instanceof NodeOperationError && error.message === 'Unauthorized access.') {
