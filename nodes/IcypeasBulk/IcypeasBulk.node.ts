@@ -118,6 +118,7 @@ export class IcypeasBulk implements INodeType {
 				}
 				console.log(data);
 				const bodyParameters = JSON.stringify({ userId, name, task, data });
+				console.log(bodyParameters);
 
 				const response = await fetch(URL, {
 					method: "POST",
