@@ -71,13 +71,11 @@ export class IcypeasBulk implements INodeType {
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
-		console.log('Starting IcypeasBulk node execution...');
 		const credentials = await this.getCredentials('icypeasBulkApi');
 		if (!credentials) {
 			throw new NodeOperationError(this.getNode(), 'Credentials are missing.');
 		}
 
-		console.log('Fetched credentials:', credentials);
 		const apiKey = credentials.apiKey as string;
       	const apiSecret = credentials.apiSecret as string;
 		const userId = credentials.userId as string;
@@ -98,16 +96,26 @@ export class IcypeasBulk implements INodeType {
 					Authorization: `${apiKey}:${signature}`,
 					"X-ROCK-TIMESTAMP": timestamp,
 				};
-				const items = this.getInputData();
-				console.log('Items:', items);
+				const inputData = this.getInputData(0); //O : index of the first input
 
 				// Prepare the data for the API request
-				const data = items.map((item) => {
+
+				/*const data = items.map((item) => {
 			  		const firstName = item.json.firstName || '';
 			  		const lastName = item.json.lastName || '';
 			  		const company = item.json.company || '';
 			  		return [firstName, lastName, company];
-				});
+				});*/
+				
+				const data : any[][] = [];
+				for (let i = 0; i < inputData.length; i++) {
+					const item = inputData[i];
+					const firstName = item.json.firstname || '';
+					const lastName = item.json.lastname || '';
+					const company = item.json.company || '';
+
+					data.push([firstName, lastName, company]);
+				}
 
 				const bodyParameters = JSON.stringify({ userId, name, task, data });
 
@@ -137,10 +145,8 @@ export class IcypeasBulk implements INodeType {
 
 				} else if (response.status === 200 && responseData.validationErrors) {
 					const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
-					console.log('An error occurred:', errorMessage);
 					throw new NodeOperationError(this.getNode(), errorMessage);
 				} else if (response.status === 401) {
-					console.log('Unauthorized access.');
 					throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
 				} else {
 					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
