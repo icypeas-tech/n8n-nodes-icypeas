@@ -78,7 +78,7 @@ export class IcypeasBulk implements INodeType {
 
 		const apiKey = credentials.apiKey as string;
       	const apiSecret = credentials.apiSecret as string;
-		const userId = credentials.userId as string;
+		const user = credentials.userId as string;
 
 		const URL = "https://app.icypeas.com/api/bulk-search";
 		const METHOD = "POST";
@@ -110,7 +110,7 @@ export class IcypeasBulk implements INodeType {
 					data.push([firstName, lastName, company]);
 				}
 				console.log(data);
-				const bodyParameters = JSON.stringify({ userId, name, task, data });
+				const bodyParameters = JSON.stringify({ user, name, task, data });
 				console.log(bodyParameters);
 
 				const response = await fetch(URL, {
@@ -154,7 +154,7 @@ export class IcypeasBulk implements INodeType {
 					data.push([email]);
 				}
 				console.log(data);
-				const bodyParameters = JSON.stringify({ userId, name, task, data });
+				const bodyParameters = JSON.stringify({ user, name, task, data });
 				console.log(bodyParameters);
 
 				const response = await fetch(URL, {
@@ -199,7 +199,7 @@ export class IcypeasBulk implements INodeType {
 					data.push([company]);
 				}
 				console.log('Data :' , data);
-				const bodyParameters = JSON.stringify({ userId, name, task, data });
+				const bodyParameters = JSON.stringify({ user, name, task, data });
 				console.log(bodyParameters);
 
 				const response = await fetch(URL, {
