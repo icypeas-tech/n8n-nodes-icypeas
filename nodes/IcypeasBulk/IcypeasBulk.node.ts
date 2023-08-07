@@ -165,9 +165,7 @@ export class IcypeasBulk implements INodeType {
     				const company = renameColumns.domain ? item.json[renameColumns.domain] : item.json.company || '';
 					data.push([firstName, lastName, company]);
 				}
-				console.log(data);
 				const bodyParameters = JSON.stringify({ user, name, task, data });
-				console.log(bodyParameters);
 
 				const response = await fetch(URL, {
 					method: "POST",
@@ -192,7 +190,6 @@ export class IcypeasBulk implements INodeType {
 					return [outputData];
 
 				} else if (response.status === 200 && responseData.validationErrors) {
-					console.log(responseData.validationErrors);
 					const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
 					//throw new NodeOperationError(this.getNode(), errorMessage);
 					throw new Error(errorMessage);
@@ -203,16 +200,13 @@ export class IcypeasBulk implements INodeType {
 				}
 			}else if ( task === 'email-verification' ) {
 				const inputData = this.getInputData(0); //O : index of the first input
-				console.log('Input Data:', inputData);
 				const data : any[][] = [];
 				for (let i = 0; i < inputData.length; i++) {
 					const item = inputData[i];
 					const email = renameColumns.email ? item.json[renameColumns.email] : item.json.email || '';
 					data.push([email]);
 				}
-				console.log('Data :' , data);
 				const bodyParameters = JSON.stringify({ user, name, task, data });
-				console.log("Body params: ", bodyParameters);
 
 				const response = await fetch(URL, {
 					method: "POST",
@@ -236,7 +230,6 @@ export class IcypeasBulk implements INodeType {
 					return [outputData];
 
 				} else if (response.status === 200 && responseData.validationErrors) {
-					console.log(responseData.validationErrors);
 					const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
 					//throw new NodeOperationError(this.getNode(), errorMessage);
 					throw new Error(errorMessage);
@@ -248,16 +241,13 @@ export class IcypeasBulk implements INodeType {
 			}
 			else{
 				const inputData = this.getInputData(0); //O : index of the first input
-				console.log('Input Data:', inputData);
 				const data : any[][] = [];
 				for (let i = 0; i < inputData.length; i++) {
 					const item = inputData[i];
 					const company = renameColumns.domain ? item.json[renameColumns.domain] : item.json.company || '';
 					data.push([company]);
 				}
-				console.log('Data :' , data);
 				const bodyParameters = JSON.stringify({ user, name, task, data });
-				console.log(bodyParameters);
 
 				const response = await fetch(URL, {
 					method: "POST",
@@ -266,7 +256,6 @@ export class IcypeasBulk implements INodeType {
 				});
 
 				const responseData: any = await response.json();
-				console.log('API Response:', responseData);
 
 				if (response.status === 200 && responseData.success) {
 					const status = responseData.status;
@@ -283,7 +272,6 @@ export class IcypeasBulk implements INodeType {
 					return [outputData];
 
 				} else if (response.status === 200 && responseData.validationErrors) {
-					console.log(responseData.validationErrors);
 					const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
 					//throw new NodeOperationError(this.getNode(), errorMessage);
 					throw new Error(errorMessage);
