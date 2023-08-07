@@ -145,17 +145,18 @@ export class IcypeasBulk implements INodeType {
 				} else {
 					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
 				}
-			}else if ( task === 'email-verification') {
+			}else if ( task === 'email-verification' ) {
 				const inputData = this.getInputData(0); //O : index of the first input
+				console.log('Input Data:', inputData);
 				const data : any[][] = [];
 				for (let i = 0; i < inputData.length; i++) {
 					const item = inputData[i];
 					const email = item.json.email || '';
 					data.push([email]);
 				}
-				console.log(data);
+				console.log('Data :' , data);
 				const bodyParameters = JSON.stringify({ user, name, task, data });
-				console.log(bodyParameters);
+				console.log("Body params: ", bodyParameters);
 
 				const response = await fetch(URL, {
 					method: "POST",
