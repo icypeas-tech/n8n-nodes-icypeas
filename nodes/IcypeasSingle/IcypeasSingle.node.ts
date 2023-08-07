@@ -36,6 +36,33 @@ export class IcypeasSingle implements INodeType {
 				type: 'options',
 				options: [
 					{
+						name: 'Single Search',
+						value: 'singleSearch',
+						action: 'Single Search',
+					},
+					{
+						name: 'Bulk Search',
+						value: 'bulkSearch',
+						action: 'Bulk Search',
+					},
+				],
+				default: 'singleSearch',
+				required: true,
+			},
+			{
+				displayName: 'Task',
+				noDataExpression: true,
+				name: 'task',
+				type: 'options',
+				displayOptions: {
+					show: {
+						searchType: [
+							'singleSearch',
+						]
+					},
+				},
+				options: [
+					{
 						name: 'Email Verification',
 						value: 'email-verification',
 					},
@@ -61,7 +88,7 @@ export class IcypeasSingle implements INodeType {
 				description: 'Email to search',
 				displayOptions: {
 					show: {
-						searchType: [
+						task: [
 							'email-verification',
 						]
 					},
@@ -75,7 +102,7 @@ export class IcypeasSingle implements INodeType {
 				placeholder: 'John',
 				displayOptions: {
 					show: {
-						searchType: [
+						task: [
 							'email-search',
 						]
 					},
@@ -89,7 +116,7 @@ export class IcypeasSingle implements INodeType {
 				placeholder: 'Doe',
 				displayOptions: {
 					show: {
-						searchType: [
+						task: [
 							'email-search',
 						]
 					},
@@ -103,7 +130,7 @@ export class IcypeasSingle implements INodeType {
 				placeholder: 'icypeas.com',
 				displayOptions: {
 					show: {
-						searchType: [
+						task: [
 							'email-search',
 							'domain-search',
 						]
@@ -129,9 +156,9 @@ export class IcypeasSingle implements INodeType {
 		const METHOD = "POST";
 
 		try {
-			const searchType = this.getNodeParameter('searchType', 0);
+			const task = this.getNodeParameter('task', 0);
 
-			if ( searchType === 'email-verification') {
+			if ( task === 'email-verification') {
 				const timestamp = new Date().toISOString();
 				// Generate the timestamp and signature
 				const signature = generateSignature(URL_email_verif, METHOD, apiSecret, timestamp);
@@ -180,7 +207,7 @@ export class IcypeasSingle implements INodeType {
 					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
 				}
 
-			}else if ( searchType === 'email-search') {
+			}else if ( task === 'email-search') {
 				const timestamp = new Date().toISOString();
 				const signature = generateSignature(URL_email_search, METHOD, apiSecret, timestamp);
 				const headers = {

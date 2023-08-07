@@ -11,9 +11,6 @@ export class IcypeasApi implements ICredentialType {
 	name = 'icypeasApi';
 	displayName = 'Icypeas API';
 	properties: INodeProperties[] = [
-		// The credentials to get from user and save encrypted.
-		// Properties can be defined exactly in the same way
-		// as node properties.
 		{
 			displayName: 'API Key',
 			name: 'apiKey',
