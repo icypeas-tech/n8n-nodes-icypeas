@@ -69,7 +69,7 @@ export class IcypeasBulk implements INodeType {
 			},
 			{
 				displayName: 'Rename columns',
-				name: 'additionalFields',
+				name: 'renameColumns',
 				type: 'collection',
 				placeholder: 'Add New Column',
 				description: 'You can set the columns names here if they are different from the default ones',
@@ -90,11 +90,6 @@ export class IcypeasBulk implements INodeType {
 						type: 'string',
 						default: '',
 						placeholder: 'firstname',
-						displayOptions: {
-							show: {
-								task: ['email-search'],
-							},
-						},
 					},
 					{
 						displayName: 'Last Name',
@@ -102,11 +97,6 @@ export class IcypeasBulk implements INodeType {
 						type: 'string',
 						default: '',
 						placeholder: 'lastname',
-						displayOptions: {
-							show: {
-								task: ['email-search'],
-							},
-						},
 					},
 					{
 						displayName: 'Domain',
@@ -114,11 +104,6 @@ export class IcypeasBulk implements INodeType {
 						type: 'string',
 						default: '',
 						placeholder: 'company',
-						displayOptions: {
-							show: {
-								task: ['email-search', 'domain-search'],
-							},
-						},
 					},
 					{
 						displayName: 'Email',
@@ -126,11 +111,6 @@ export class IcypeasBulk implements INodeType {
 						type: 'string',
 						default: '',
 						placeholder: 'email',
-						displayOptions: {
-							show: {
-								task: ['email-verification'],
-							},
-						},
 					},
 				]
 			}
