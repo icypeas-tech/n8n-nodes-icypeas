@@ -89,6 +89,7 @@ export class IcypeasBulk implements INodeType {
 						name: 'firstname',
 						type: 'string',
 						default: '',
+						description: 'Default: firstname',
 						placeholder: 'firstname',
 					},
 					{
@@ -96,6 +97,7 @@ export class IcypeasBulk implements INodeType {
 						name: 'lastname',
 						type: 'string',
 						default: '',
+						description: 'Default: lastname',
 						placeholder: 'lastname',
 					},
 					{
@@ -103,6 +105,7 @@ export class IcypeasBulk implements INodeType {
 						name: 'domain',
 						type: 'string',
 						default: '',
+						description: 'Default: company',
 						placeholder: 'company',
 					},
 					{
@@ -110,6 +113,7 @@ export class IcypeasBulk implements INodeType {
 						name: 'email',
 						type: 'string',
 						default: '',
+						description: 'Default: email',
 						placeholder: 'email',
 					},
 				]
@@ -159,7 +163,6 @@ export class IcypeasBulk implements INodeType {
 					const firstName = renameColumns.firstname ? item.json[renameColumns.firstname] : item.json.firstname || '';
     				const lastName = renameColumns.lastname ? item.json[renameColumns.lastname] : item.json.lastname || '';
     				const company = renameColumns.domain ? item.json[renameColumns.domain] : item.json.company || '';
-
 					data.push([firstName, lastName, company]);
 				}
 				console.log(data);
@@ -204,7 +207,7 @@ export class IcypeasBulk implements INodeType {
 				const data : any[][] = [];
 				for (let i = 0; i < inputData.length; i++) {
 					const item = inputData[i];
-					const email = item.json.email || '';
+					const email = renameColumns.email ? item.json[renameColumns.email] : item.json.email || '';
 					data.push([email]);
 				}
 				console.log('Data :' , data);
@@ -249,7 +252,7 @@ export class IcypeasBulk implements INodeType {
 				const data : any[][] = [];
 				for (let i = 0; i < inputData.length; i++) {
 					const item = inputData[i];
-					const company = item.json.company || '';
+					const company = renameColumns.domain ? item.json[renameColumns.domain] : item.json.company || '';
 					data.push([company]);
 				}
 				console.log('Data :' , data);
@@ -299,6 +302,5 @@ export class IcypeasBulk implements INodeType {
 				throw new NodeOperationError(this.getNode(), 'Credentials are missing.');
 			}throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
 		}
-
 	}
 }
