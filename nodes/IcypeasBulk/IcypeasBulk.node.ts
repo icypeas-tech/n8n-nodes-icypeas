@@ -67,6 +67,64 @@ export class IcypeasBulk implements INodeType {
 					},
 				},
 			},
+			{
+				displayName: 'Rename columns',
+				name: 'additionalFields',
+				type: 'collection',
+				placeholder: 'Add New Column',
+				description: 'You can set the columns names here if they are different from the default ones',
+				default: {},
+				options: [
+					{
+						displayName: 'First Name',
+						name: 'firstname',
+						type: 'string',
+						default: '',
+						placeholder: 'firstname',
+						displayOptions: {
+							show: {
+								task: ['email-search'],
+							},
+						},
+					},
+					{
+						displayName: 'Last Name',
+						name: 'lastname',
+						type: 'string',
+						default: '',
+						placeholder: 'lastname',
+						displayOptions: {
+							show: {
+								task: ['email-search'],
+							},
+						},
+					},
+					{
+						displayName: 'Domain',
+						name: 'domain',
+						type: 'string',
+						default: '',
+						placeholder: 'company',
+						displayOptions: {
+							show: {
+								task: ['email-search', 'domain-search'],
+							},
+						},
+					},
+					{
+						displayName: 'Email',
+						name: 'email',
+						type: 'string',
+						default: '',
+						placeholder: 'email',
+						displayOptions: {
+							show: {
+								task: ['email-verification'],
+							},
+						},
+					},
+				]
+			}
 		],
 	};
 
