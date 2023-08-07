@@ -52,7 +52,7 @@ export class IcypeasSingle implements INodeType {
 			{
 				displayName: 'Task',
 				noDataExpression: true,
-				name: 'task',
+				name: 'taskSingle',
 				type: 'options',
 				displayOptions: {
 					show: {
@@ -88,7 +88,7 @@ export class IcypeasSingle implements INodeType {
 				description: 'Email to search',
 				displayOptions: {
 					show: {
-						task: [
+						taskSingle: [
 							'email-verification',
 						]
 					},
@@ -102,7 +102,7 @@ export class IcypeasSingle implements INodeType {
 				placeholder: 'John',
 				displayOptions: {
 					show: {
-						task: [
+						taskSingle: [
 							'email-search',
 						]
 					},
@@ -116,7 +116,7 @@ export class IcypeasSingle implements INodeType {
 				placeholder: 'Doe',
 				displayOptions: {
 					show: {
-						task: [
+						taskSingle: [
 							'email-search',
 						]
 					},
@@ -130,13 +130,111 @@ export class IcypeasSingle implements INodeType {
 				placeholder: 'icypeas.com',
 				displayOptions: {
 					show: {
-						task: [
+						taskSingle: [
 							'email-search',
 							'domain-search',
 						]
 					},
 				}
 			},
+			{
+				displayName: 'Task',
+				noDataExpression: true,
+				name: 'taskBulk',
+				type: 'options',
+				displayOptions: {
+					show: {
+						searchType: [
+							'bulkSearch',
+						]
+					},
+				},
+				options: [
+					{
+						name: 'Email Verification',
+						value: 'email-verification',
+					},
+					{
+						name: 'Email Search',
+						value: 'email-search',
+						description: 'Requires the person\'s first name and last name, and a domain',
+					},
+					{
+						name: 'Domain Search',
+						value: 'domain-search',
+					},
+				],
+				default: 'email-search',
+				required: true,
+			},
+			{
+				displayName: 'Name',
+				name: 'name',
+				type: 'string',
+				default: '',
+				placeholder: 'Test',
+				description: 'The name of the test you want to make',
+				displayOptions: {
+					show: {
+						taskBulk: [
+							'email-search',
+							'domain-search',
+							'email-verification',
+						],
+					},
+				},
+			},
+			{
+				displayName: 'Rename columns',
+				name: 'renameColumns',
+				type: 'collection',
+				placeholder: 'Add New Column',
+				description: 'You can set the columns names here if they are different from the default ones',
+				default: {},
+				displayOptions: {
+					show: {
+						taskBulk: [
+							'email-search',
+							'domain-search',
+							'email-verification',
+						],
+					},
+				},
+				options: [
+					{
+						displayName: 'First Name',
+						name: 'firstname',
+						type: 'string',
+						default: '',
+						description: 'Default: firstname',
+						placeholder: 'firstname',
+					},
+					{
+						displayName: 'Last Name',
+						name: 'lastname',
+						type: 'string',
+						default: '',
+						description: 'Default: lastname',
+						placeholder: 'lastname',
+					},
+					{
+						displayName: 'Domain',
+						name: 'domain',
+						type: 'string',
+						default: '',
+						description: 'Default: company',
+						placeholder: 'company',
+					},
+					{
+						displayName: 'Email',
+						name: 'email',
+						type: 'string',
+						default: '',
+						description: 'Default: email',
+						placeholder: 'email',
+					},
+				]
+			}
 		],
 	};
 
@@ -156,9 +254,9 @@ export class IcypeasSingle implements INodeType {
 		const METHOD = "POST";
 
 		try {
-			const task = this.getNodeParameter('task', 0);
+			const taskSingle = this.getNodeParameter('taskSingle', 0);
 
-			if ( task === 'email-verification') {
+			if ( taskSingle === 'email-verification') {
 				const timestamp = new Date().toISOString();
 				// Generate the timestamp and signature
 				const signature = generateSignature(URL_email_verif, METHOD, apiSecret, timestamp);
@@ -207,7 +305,7 @@ export class IcypeasSingle implements INodeType {
 					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
 				}
 
-			}else if ( task === 'email-search') {
+			}else if ( taskSingle === 'email-search') {
 				const timestamp = new Date().toISOString();
 				const signature = generateSignature(URL_email_search, METHOD, apiSecret, timestamp);
 				const headers = {
