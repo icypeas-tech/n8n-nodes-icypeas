@@ -136,6 +136,12 @@ export class IcypeasBulk implements INodeType {
 			if (!name) {
 				name = 'Test';
 			}
+			const renameColumns = this.getNodeParameter('renameColumns', 0) as {
+				firstname?: string;
+				lastname?: string;
+				domain?: string;
+				email?: string;
+			};
 			const timestamp = new Date().toISOString();
 			const signature = generateSignature(URL, METHOD, apiSecret, timestamp);
 
@@ -150,9 +156,9 @@ export class IcypeasBulk implements INodeType {
 				const data : any[][] = [];
 				for (let i = 0; i < inputData.length; i++) {
 					const item = inputData[i];
-					const firstName = item.json.firstname || '';
-					const lastName = item.json.lastname || '';
-					const company = item.json.company || '';
+					const firstName = renameColumns.firstname ? item.json[renameColumns.firstname] : item.json.firstname || '';
+    				const lastName = renameColumns.lastname ? item.json[renameColumns.lastname] : item.json.lastname || '';
+    				const company = renameColumns.domain ? item.json[renameColumns.domain] : item.json.company || '';
 
 					data.push([firstName, lastName, company]);
 				}
