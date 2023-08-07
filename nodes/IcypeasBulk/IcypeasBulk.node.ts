@@ -74,6 +74,15 @@ export class IcypeasBulk implements INodeType {
 				placeholder: 'Add New Column',
 				description: 'You can set the columns names here if they are different from the default ones',
 				default: {},
+				displayOptions: {
+					show: {
+						task: [
+							'email-search',
+							'domain-search',
+							'email-verification',
+						],
+					},
+				},
 				options: [
 					{
 						displayName: 'First Name',
