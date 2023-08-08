@@ -10,11 +10,9 @@ For the [API](https://app.icypeas.com/), you can always refer to the [Icypeas do
 
 [Installation](#installation)  
 [Operations](#operations)  
-[Credentials](#credentials)    
-[Compatibility](#compatibility)  
+[Credentials](#credentials)      
 [Usage](#usage)   
 [Resources](#resources)  
-[Version history](#version-history)   
 
 ## Installation
 
