@@ -32,7 +32,7 @@
       "dist/credentials/IcypeasBulkApi.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/IcypeasSingle/IcypeasSingle.node.js",
+      "dist/nodes/IcypeasSingle/Icypeas.node.js",
       "dist/nodes/IcypeasBulk/IcypeasBulk.node.js"
     ]
   },
