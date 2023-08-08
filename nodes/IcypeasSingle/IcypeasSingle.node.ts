@@ -302,7 +302,7 @@ export class IcypeasSingle implements INodeType {
 					return [outputData];
 				}
 			}else{
-				const taskBulk = this.getNodeParameter('taskBulk', 0);
+				const task = this.getNodeParameter('taskBulk', 0);
 
 				if (!credentials.userId) {
 					throw new NodeOperationError(this.getNode(), 'Credentials are missing: userId for bulk search.');
@@ -310,7 +310,9 @@ export class IcypeasSingle implements INodeType {
 				const user = credentials.userId as string;
 				
 				let name = this.getNodeParameter('name', 0);
-				if (!name) name = 'Test';
+				if (!name) {
+					name = 'Test';
+				}
 				
 				const renameColumns = this.getNodeParameter('renameColumns', 0) as {
 					firstname?: string;
@@ -330,7 +332,7 @@ export class IcypeasSingle implements INodeType {
 					"X-ROCK-TIMESTAMP": timestamp,
 				};
 
-				if ( taskBulk === 'email-search') {
+				if ( task === 'email-search') {
 					const inputData = this.getInputData(0); //O : index of the first input
 					console.log("input data:", inputData);
 					const data : any[][] = [];
@@ -342,7 +344,7 @@ export class IcypeasSingle implements INodeType {
 						data.push([firstName, lastName, company]);
 					}
 					console.log("data:", data);
-					const bodyParameters = JSON.stringify({ user, name, taskBulk, data });
+					const bodyParameters = JSON.stringify({ user, name, task, data });
 					console.log("bodyParameters:", bodyParameters);
 	
 					const response = await fetch(URL_bulk, {
@@ -377,7 +379,7 @@ export class IcypeasSingle implements INodeType {
 					} else {
 						throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
 					}
-				}else if ( taskBulk === 'email-verification' ) {
+				}else if ( task === 'email-verification' ) {
 					const inputData = this.getInputData(0); //O : index of the first input
 					console.log("input data:", inputData);
 					const data : any[][] = [];
@@ -387,7 +389,7 @@ export class IcypeasSingle implements INodeType {
 						data.push([email]);
 					}
 					console.log("data:", data);	
-					const bodyParameters = JSON.stringify({ user, name, taskBulk, data });
+					const bodyParameters = JSON.stringify({ user, name, task, data });
 					console.log("bodyParameters:", bodyParameters);
 					const response = await fetch(URL_bulk, {
 						method: "POST",
@@ -431,7 +433,7 @@ export class IcypeasSingle implements INodeType {
 						data.push([company]);
 					}
 					console.log("data:", data);
-					const bodyParameters = JSON.stringify({ user, name, taskBulk, data });
+					const bodyParameters = JSON.stringify({ user, name, task, data });
 					console.log("bodyParameters:", bodyParameters);
 	
 					const response = await fetch(URL_bulk, {
