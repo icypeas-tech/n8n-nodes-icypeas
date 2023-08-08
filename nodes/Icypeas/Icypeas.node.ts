@@ -5,18 +5,18 @@ import {
 	INodeTypeDescription,
 	NodeOperationError,
 } from 'n8n-workflow';
-import { generateSignature, processApiCallSingle } from '../../utils'; // Import the generateSignature and processApiCall functions
+import { generateSignature, processApiCallSingle, processApiCallBulk } from '../../utils'; // Import the generateSignature & processApiCall functions
 
-export class IcypeasSingle implements INodeType {
+export class Icypeas implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Icypeas Single Search',
-		name: 'IcypeasSingle',
+		displayName: 'Icypeas',
+		name: 'Icypeas',
 		icon: 'file:logo.svg',
 		group: ['transform'],
 		version: 1,
 		description: 'Icypeas-Single Node for n8n will take care of the single searches (email verification, email search & domain search) with the Icypeas\'s API',
 		defaults: {
-			name: 'Icypeas : Single Search',
+			name: 'Icypeas',
 		},
 		inputs: ['main'],
 		outputs: ['main'],
@@ -334,7 +334,6 @@ export class IcypeasSingle implements INodeType {
 
 				if ( task === 'email-search') {
 					const inputData = this.getInputData(0); //O : index of the first input
-					console.log("input data:", inputData);
 					const data : any[][] = [];
 					for (let i = 0; i < inputData.length; i++) {
 						const item = inputData[i];
@@ -343,131 +342,39 @@ export class IcypeasSingle implements INodeType {
 						const company = renameColumns.domain ? item.json[renameColumns.domain] : item.json.company || '';
 						data.push([firstName, lastName, company]);
 					}
-					console.log("data:", data);
+
 					const bodyParameters = JSON.stringify({ user, name, task, data });
-					console.log("bodyParameters:", bodyParameters);
 	
-					const response = await fetch(URL_bulk, {
-						method: "POST",
-						headers: headers,
-						body: bodyParameters,
-					});
-	
-					const responseData: any = await response.json();
-					if (response.status === 200 && responseData.success) {
-						// If the request was successful (success = true) return results in the output data array
-						const status = responseData.status;
-						const fileId = responseData.file;
-						const outputData: INodeExecutionData[] = [
-							{
-								json: {
-									message: 'Bulk email search successful!',
-									status: status,
-									fileId: fileId,
-								},
-							},
-						];
-						return [outputData];
-	
-					} else if (response.status === 200 && responseData.validationErrors) {
-						const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
-						//throw new NodeOperationError(this.getNode(), errorMessage);
-						console.log("error message:", errorMessage);
-						throw new Error(errorMessage);
-					} else if (response.status === 401) {
-						throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
-					} else {
-						throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
-					}
+					const outputData = await processApiCallBulk(URL_bulk, headers, bodyParameters);
+					return [outputData];
+
 				}else if ( task === 'email-verification' ) {
 					const inputData = this.getInputData(0); //O : index of the first input
-					console.log("input data:", inputData);
 					const data : any[][] = [];
 					for (let i = 0; i < inputData.length; i++) {
 						const item = inputData[i];
 						const email = renameColumns.email ? item.json[renameColumns.email] : item.json.email || '';
 						data.push([email]);
 					}
-					console.log("data:", data);	
+					
 					const bodyParameters = JSON.stringify({ user, name, task, data });
-					console.log("bodyParameters:", bodyParameters);
-					const response = await fetch(URL_bulk, {
-						method: "POST",
-						headers: headers,
-						body: bodyParameters,
-					});
-	
-					const responseData: any = await response.json();
-					if (response.status === 200 && responseData.success) {
-						const status = responseData.status;
-						const fileId = responseData.file;
-						const outputData: INodeExecutionData[] = [
-							{
-								json: {
-									message: 'Bulk email verification successful!',
-									status: status,
-									fileId: fileId,
-								},
-							},
-						];
-						return [outputData];
-	
-					} else if (response.status === 200 && responseData.validationErrors) {
-						const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
-						//throw new NodeOperationError(this.getNode(), errorMessage);
-						console.log("error message:", errorMessage);
-						throw new Error(errorMessage);
-					} else if (response.status === 401) {
-						throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
-					} else {
-						throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
-					}
+
+					const outputData = await processApiCallBulk(URL_bulk, headers, bodyParameters);
+					return [outputData];
 				}
 				else{
 					const inputData = this.getInputData(0); //O : index of the first input
-					console.log("input data:", inputData);
 					const data : any[][] = [];
 					for (let i = 0; i < inputData.length; i++) {
 						const item = inputData[i];
 						const company = renameColumns.domain ? item.json[renameColumns.domain] : item.json.company || '';
 						data.push([company]);
 					}
-					console.log("data:", data);
+					
 					const bodyParameters = JSON.stringify({ user, name, task, data });
-					console.log("bodyParameters:", bodyParameters);
-	
-					const response = await fetch(URL_bulk, {
-						method: "POST",
-						headers: headers,
-						body: bodyParameters,
-					});
-	
-					const responseData: any = await response.json();
-	
-					if (response.status === 200 && responseData.success) {
-						const status = responseData.status;
-						const fileId = responseData.file;
-						const outputData: INodeExecutionData[] = [
-							{
-								json: {
-									message: 'Bulk domain search successful!',
-									status: status,
-									fileId: fileId,
-								},
-							},
-						];
-						return [outputData];
-	
-					} else if (response.status === 200 && responseData.validationErrors) {
-						const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
-						//throw new NodeOperationError(this.getNode(), errorMessage);
-						console.log("error message:", errorMessage);
-						throw new Error(errorMessage);
-					} else if (response.status === 401) {
-						throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
-					} else {
-						throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
-					}
+					
+					const outputData = await processApiCallBulk(URL_bulk, headers, bodyParameters);
+					return [outputData];
 				}
 			}
 
