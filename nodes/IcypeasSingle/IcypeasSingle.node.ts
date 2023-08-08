@@ -5,7 +5,7 @@ import {
 	INodeTypeDescription,
 	NodeOperationError,
 } from 'n8n-workflow';
-import { generateSignature, processApiCall } from '../../utils'; // Import the generateSignature and processApiCall functions
+import { generateSignature, processApiCallSingle } from '../../utils'; // Import the generateSignature and processApiCall functions
 
 export class IcypeasSingle implements INodeType {
 	description: INodeTypeDescription = {
@@ -266,7 +266,7 @@ export class IcypeasSingle implements INodeType {
 				const email = this.getNodeParameter('email', 0) as string; // Get the email value from the node properties
 				const bodyParameters = JSON.stringify({ email });
 
-				const outputData = await processApiCall(URL_email_verif, headers, bodyParameters);
+				const outputData = await processApiCallSingle(URL_email_verif, headers, bodyParameters);
         		return [outputData];
 
 			}else if ( taskSingle === 'email-search') {
@@ -283,7 +283,7 @@ export class IcypeasSingle implements INodeType {
 				const domainOrCompany = this.getNodeParameter('domain', 0) as string; 
 				const bodyParameters = JSON.stringify({ firstname, lastname, domainOrCompany });
 
-				const outputData = await processApiCall(URL_email_search, headers, bodyParameters);
+				const outputData = await processApiCallSingle(URL_email_search, headers, bodyParameters);
         		return [outputData];
 			}
 			else{
@@ -296,8 +296,9 @@ export class IcypeasSingle implements INodeType {
 				};
 				const domainOrCompany = this.getNodeParameter('domain', 0) as string;
 				const bodyParameters = JSON.stringify({ domainOrCompany });
+				console.log(bodyParameters);
 
-				const outputData = await processApiCall(URL_domain_search, headers, bodyParameters);
+				const outputData = await processApiCallSingle(URL_domain_search, headers, bodyParameters);
 				return [outputData];
 			}
 		} catch (error) {
