@@ -332,6 +332,7 @@ export class IcypeasSingle implements INodeType {
 
 				if ( taskBulk === 'email-search') {
 					const inputData = this.getInputData(0); //O : index of the first input
+					console.log("input data:", inputData);
 					const data : any[][] = [];
 					for (let i = 0; i < inputData.length; i++) {
 						const item = inputData[i];
@@ -340,7 +341,9 @@ export class IcypeasSingle implements INodeType {
 						const company = renameColumns.domain ? item.json[renameColumns.domain] : item.json.company || '';
 						data.push([firstName, lastName, company]);
 					}
+					console.log("data:", data);
 					const bodyParameters = JSON.stringify({ user, name, taskBulk, data });
+					console.log("bodyParameters:", bodyParameters);
 	
 					const response = await fetch(URL_bulk, {
 						method: "POST",
@@ -367,6 +370,7 @@ export class IcypeasSingle implements INodeType {
 					} else if (response.status === 200 && responseData.validationErrors) {
 						const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
 						//throw new NodeOperationError(this.getNode(), errorMessage);
+						console.log("error message:", errorMessage);
 						throw new Error(errorMessage);
 					} else if (response.status === 401) {
 						throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
@@ -375,14 +379,16 @@ export class IcypeasSingle implements INodeType {
 					}
 				}else if ( taskBulk === 'email-verification' ) {
 					const inputData = this.getInputData(0); //O : index of the first input
+					console.log("input data:", inputData);
 					const data : any[][] = [];
 					for (let i = 0; i < inputData.length; i++) {
 						const item = inputData[i];
 						const email = renameColumns.email ? item.json[renameColumns.email] : item.json.email || '';
 						data.push([email]);
 					}
+					console.log("data:", data);	
 					const bodyParameters = JSON.stringify({ user, name, taskBulk, data });
-	
+					console.log("bodyParameters:", bodyParameters);
 					const response = await fetch(URL_bulk, {
 						method: "POST",
 						headers: headers,
@@ -407,6 +413,7 @@ export class IcypeasSingle implements INodeType {
 					} else if (response.status === 200 && responseData.validationErrors) {
 						const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
 						//throw new NodeOperationError(this.getNode(), errorMessage);
+						console.log("error message:", errorMessage);
 						throw new Error(errorMessage);
 					} else if (response.status === 401) {
 						throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
@@ -416,13 +423,16 @@ export class IcypeasSingle implements INodeType {
 				}
 				else{
 					const inputData = this.getInputData(0); //O : index of the first input
+					console.log("input data:", inputData);
 					const data : any[][] = [];
 					for (let i = 0; i < inputData.length; i++) {
 						const item = inputData[i];
 						const company = renameColumns.domain ? item.json[renameColumns.domain] : item.json.company || '';
 						data.push([company]);
 					}
+					console.log("data:", data);
 					const bodyParameters = JSON.stringify({ user, name, taskBulk, data });
+					console.log("bodyParameters:", bodyParameters);
 	
 					const response = await fetch(URL_bulk, {
 						method: "POST",
@@ -449,6 +459,7 @@ export class IcypeasSingle implements INodeType {
 					} else if (response.status === 200 && responseData.validationErrors) {
 						const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
 						//throw new NodeOperationError(this.getNode(), errorMessage);
+						console.log("error message:", errorMessage);
 						throw new Error(errorMessage);
 					} else if (response.status === 401) {
 						throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
@@ -456,12 +467,7 @@ export class IcypeasSingle implements INodeType {
 						throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
 					}
 				}
-
-
-				throw new NodeOperationError(this.getNode(), 'Bulk search is not yet implemented.');
 			}
-
-
 
 		} catch (error) {
 			if (error instanceof Error && error.message === 'Unauthorized access.') {

@@ -60,12 +60,12 @@ export class IcypeasApi implements ICredentialType {
 	getCredentials(this: any): {
 		apiKey: string;
 		apiSecret: string;
-		userID?: string;
+		userId?: string;
 	} {
 		return {
 			apiKey: this.getCredential('apiKey') as string,
 			apiSecret: this.getCredential('apiSecret') as string,
-			userID: this.getCredential('userId') as string,
+			userId: this.getCredential('userId') as string,
 		};
 	}
 }
