@@ -6,6 +6,7 @@ import {
 	NodeOperationError,
 } from 'n8n-workflow';
 import { generateSignature } from '../../utils'; // Import the generateSignature function
+import { processApiCall } from '../../utils';
 
 export class IcypeasSingle implements INodeType {
 	description: INodeTypeDescription = {
@@ -241,7 +242,10 @@ export class IcypeasSingle implements INodeType {
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		//Get the credentials the user provided for this node :  apiKey and apiSecret
 		const credentials = await this.getCredentials('icypeasApi');
-		if (!credentials || !credentials.apiKey || !credentials.apiSecret) {
+		//const searchType = this.getNodeParameter('searchType', 0);
+		//if ( searchType === 'singleSearch') {}
+
+		if ( !credentials.apiKey || !credentials.apiSecret) {
 			throw new NodeOperationError(this.getNode(), 'Credentials are missing.');
 		}
 		const apiKey = credentials.apiKey as string;
@@ -270,40 +274,8 @@ export class IcypeasSingle implements INodeType {
 				const email = this.getNodeParameter('email', 0) as string; // Get the email value from the node properties
 				const bodyParameters = JSON.stringify({ email });
 
-				// Make the API call 
-				const response = await fetch(URL_email_verif, {
-					method: "POST",
-					headers: headers,
-					body: bodyParameters,
-				});
-
-				// Parse the API response
-				const responseData: any = await response.json();
-
-				// Check the API response and handle it accordingly
-				if (response.status === 200 && responseData.success) {
-					// If the request was successful (success = true) return results in the output data array
-					const status = responseData.item?.status;
-					const searchId = responseData.item?._id;
-					const outputData: INodeExecutionData[] = [
-						{
-							json: {
-								searchId: searchId,
-								status: status,
-								message: 'Email verification successful!',
-							},
-						},
-					];
-					return [outputData];
-				
-				} else if (response.status === 200 && responseData.validationErrors) { // If the request was successful but validationErrors = true
-					const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
-					throw new NodeOperationError(this.getNode(), errorMessage);
-				} else if (response.status === 401) {
-					throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
-				} else { // Generic error
-					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
-				}
+				const outputData = await processApiCall(URL_email_verif, headers, bodyParameters);
+        		return [outputData];
 
 			}else if ( taskSingle === 'email-search') {
 				const timestamp = new Date().toISOString();
@@ -335,7 +307,6 @@ export class IcypeasSingle implements INodeType {
 							json: {
 								searchId: searchId,
 								status: status,
-								message: 'Email search successful!',
 							},
 						},
 					];return [outputData];
@@ -377,7 +348,6 @@ export class IcypeasSingle implements INodeType {
 							json: {
 								searchId: searchId,
 								status: status,
-								message: 'Domain search successful!',
 							},
 						},
 					];
@@ -391,6 +361,8 @@ export class IcypeasSingle implements INodeType {
 					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
 				}
 			}
+
+			
 		} catch (error) {
 			// If an error occurs, capture it here and throw it as an exception for n8n
 			if (error instanceof NodeOperationError && error.message === 'Unauthorized access.') {

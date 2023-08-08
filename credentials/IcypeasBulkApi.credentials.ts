@@ -11,9 +11,6 @@ export class IcypeasBulkApi implements ICredentialType {
 	name = 'icypeasBulkApi';
 	displayName = 'Icypeas Bulk API';
 	properties: INodeProperties[] = [
-		// The credentials to get from user and save encrypted.
-		// Properties can be defined exactly in the same way
-		// as node properties.
 		{
 			displayName: 'API Key',
 			name: 'apiKey',
@@ -41,19 +38,17 @@ export class IcypeasBulkApi implements ICredentialType {
 	];
 
 	async authenticateRequest(this: any, request: any): Promise<void> {
-		// Add authentication to the request
 		const credentials = this.getCredentials();
     	const apiKey = credentials.apiKey as string;
     	const apiSecret = credentials.apiSecret as string;
     	const timestamp = new Date().toISOString();
     	const signature = generateSignature(
-      		'https://app.icypeas.com/api/email-verification',
+      		'https://app.icypeas.com/api/bulk-search',
       		'POST',
       		apiSecret,
       		timestamp
     	);
 
-    	// Explicitly cast request.headers to JsonObject
     	(request.headers as JsonObject) = {
       		...(request.headers as JsonObject),
       		'Content-Type': 'application/json',

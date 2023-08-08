@@ -29,46 +29,15 @@ export class IcypeasApi implements ICredentialType {
 			},
 			default: '',
 		},
-		/*{
+		{
 			displayName: 'User ID',
 			name: 'userId',
 			type: 'string',
 			default: '',
-		},*/
+		},
 	];
 
-
-	// This credential is currently not used by any node directly
-	// but the HTTP Request node can use it to make requests.
-	// The credential is also testable due to the `test` property below
-	/*authenticate: IAuthenticateGeneric = {
-		type: 'generic',
-		properties: {
-			auth: {
-				username: '={{ $credentials.apiKey }}',
-				password: '={{ $credentials.apiSecret }}',
-			},
-			qs: {
-				// Send this as part of the query string
-				n8n: 'rocks',
-			},
-		},
-	};
-
-	// The block below tells how this credential can be tested
-	test: ICredentialTestRequest = {
-		request: {
-			baseURL: 'https://app.icypeas.com/api',
-			url: '/email-verification',
-			method: 'POST',
-			body: {
-				data: [{ email: '' }],
-			},
-		},
-	};*/
-
 	async authenticateRequest(this: any, request: any): Promise<void> {
-		// Add authentication to the request
 		const credentials = this.getCredentials();
     	const apiKey = credentials.apiKey as string;
     	const apiSecret = credentials.apiSecret as string;
@@ -80,7 +49,6 @@ export class IcypeasApi implements ICredentialType {
       		timestamp
     	);
 
-    	// Explicitly cast request.headers to JsonObject
     	(request.headers as JsonObject) = {
       		...(request.headers as JsonObject),
       		'Content-Type': 'application/json',
@@ -92,10 +60,12 @@ export class IcypeasApi implements ICredentialType {
 	getCredentials(this: any): {
 		apiKey: string;
 		apiSecret: string;
+		userID?: string;
 	} {
 		return {
 			apiKey: this.getCredential('apiKey') as string,
 			apiSecret: this.getCredential('apiSecret') as string,
+			userID: this.getCredential('userId') as string,
 		};
 	}
 }
