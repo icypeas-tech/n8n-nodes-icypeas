@@ -1,4 +1,4 @@
-# n8n-nodes-icypeas
+# Icypeas node
 
 This is an n8n community node. It lets you use Icypeas API in your n8n workflows.
 
@@ -20,9 +20,14 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ## Operations
 
-You can do email verification, email search, domain search by performing the following operations with this node:
-- Single Search
-- Bulk Search
+You can do : 
+- email verification
+- email search 
+- domain search  
+
+by either performing :
+- a single search 
+- or a bulk search.
 
 ## Credentials
 
@@ -31,15 +36,15 @@ You need to implement three informations:
 - The API Secret
 - The User ID for the bulk search
 
-To retrieve those informations, go to the user profile in the Icypeas application. After logging in: Click on the profile icon > Select "Your Profile"  > Go to the "API" section > Click on the "Enable API Access" button.
+To retrieve those informations, go to the user profile in the Icypeas application. After logging in: Click on the profile icon > Select _Your Profile_  > Go to the _API_ section > Click on the _Enable API Access_ button.
 
 
 ## Usage
 
 The bulk search needs the user ID, and a file with the informations to search. The file must be a xlsx file (or Google Sheet) with the following columns:
-- email (for email verification)
-- company (for domain search)
-- firstname, lastname, company (for email search).
+- _email_ (for email verification)
+- _company_ (for domain search)
+- _firstname_, _lastname_, _company_ (for email search).
 
 You can also implement your own colomns names if they are different, by specifying them in the node settings.
 
