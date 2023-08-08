@@ -5,8 +5,7 @@ import {
 	INodeTypeDescription,
 	NodeOperationError,
 } from 'n8n-workflow';
-import { generateSignature } from '../../utils'; // Import the generateSignature function
-import { processApiCall } from '../../utils';
+import { generateSignature, processApiCall } from '../../utils'; // Import the generateSignature and processApiCall functions
 
 export class IcypeasSingle implements INodeType {
 	description: INodeTypeDescription = {
@@ -27,9 +26,7 @@ export class IcypeasSingle implements INodeType {
 				required: true,
 			},
 		],
-		properties: [
-			// Node properties which the user gets displayed and
-			// can change on the node.
+		properties: [ // Node properties
 			{
 				displayName: 'Search Type',
 				noDataExpression: true,
@@ -240,7 +237,6 @@ export class IcypeasSingle implements INodeType {
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
-		//Get the credentials the user provided for this node :  apiKey and apiSecret
 		const credentials = await this.getCredentials('icypeasApi');
 		//const searchType = this.getNodeParameter('searchType', 0);
 		//if ( searchType === 'singleSearch') {}
@@ -254,17 +250,13 @@ export class IcypeasSingle implements INodeType {
 		const URL_email_verif = "https://app.icypeas.com/api/email-verification";
 		const URL_email_search = "https://app.icypeas.com/api/email-search";
 		const URL_domain_search = "https://app.icypeas.com/api/domain-search";
-		
-		const METHOD = "POST";
 
 		try {
 			const taskSingle = this.getNodeParameter('taskSingle', 0);
 
 			if ( taskSingle === 'email-verification') {
 				const timestamp = new Date().toISOString();
-				// Generate the timestamp and signature
-				const signature = generateSignature(URL_email_verif, METHOD, apiSecret, timestamp);
-
+				const signature = generateSignature(URL_email_verif, "POST", apiSecret, timestamp);
 				const headers = {
 					"Content-Type": "application/json",
 					Authorization: `${apiKey}:${signature}`,
@@ -279,7 +271,7 @@ export class IcypeasSingle implements INodeType {
 
 			}else if ( taskSingle === 'email-search') {
 				const timestamp = new Date().toISOString();
-				const signature = generateSignature(URL_email_search, METHOD, apiSecret, timestamp);
+				const signature = generateSignature(URL_email_search, "POST", apiSecret, timestamp);
 				const headers = {
 					"Content-Type": "application/json",
 					Authorization: `${apiKey}:${signature}`,
@@ -291,39 +283,12 @@ export class IcypeasSingle implements INodeType {
 				const domainOrCompany = this.getNodeParameter('domain', 0) as string; 
 				const bodyParameters = JSON.stringify({ firstname, lastname, domainOrCompany });
 
-				const response = await fetch(URL_email_search, {
-					method: "POST",
-					headers: headers,
-					body: bodyParameters,
-				});
-
-				const responseData: any = await response.json();
-				if (response.status === 200 && responseData.success) {
-					const status = responseData.item?.status;
-					const searchId = responseData.item?._id;
-
-					const outputData: INodeExecutionData[] = [
-						{
-							json: {
-								searchId: searchId,
-								status: status,
-							},
-						},
-					];return [outputData];
-
-				} else if (response.status === 200 && responseData.validationErrors) {
-					const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
-					throw new NodeOperationError(this.getNode(), errorMessage);
-				} else if (response.status === 401) {
-					throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
-				} else {
-					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
-				}
+				const outputData = await processApiCall(URL_email_search, headers, bodyParameters);
+        		return [outputData];
 			}
-			
 			else{
 				const timestamp = new Date().toISOString();
-				const signature = generateSignature(URL_domain_search, METHOD, apiSecret, timestamp);
+				const signature = generateSignature(URL_domain_search, "POST", apiSecret, timestamp);
 				const headers = {
 					"Content-Type": "application/json",
 					Authorization: `${apiKey}:${signature}`,
@@ -332,39 +297,10 @@ export class IcypeasSingle implements INodeType {
 				const domainOrCompany = this.getNodeParameter('domain', 0) as string;
 				const bodyParameters = JSON.stringify({ domainOrCompany });
 
-				const response = await fetch(URL_domain_search, {
-					method: "POST",
-					headers: headers,
-					body: bodyParameters,
-				});
-
-				const responseData: any = await response.json();
-
-				if (response.status === 200 && responseData.success) {
-					const status = responseData.item?.status;
-					const searchId = responseData.item?._id;
-					const outputData: INodeExecutionData[] = [
-						{
-							json: {
-								searchId: searchId,
-								status: status,
-							},
-						},
-					];
-					return [outputData];
-				} else if (response.status === 200 && responseData.validationErrors) {
-					const errorMessage = responseData.validationErrors.map((error: any) => error.message).join(', ');
-					throw new NodeOperationError(this.getNode(), errorMessage);
-				} else if (response.status === 401) {
-					throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
-				} else {
-					throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
-				}
+				const outputData = await processApiCall(URL_domain_search, headers, bodyParameters);
+				return [outputData];
 			}
-
-			
 		} catch (error) {
-			// If an error occurs, capture it here and throw it as an exception for n8n
 			if (error instanceof Error && error.message === 'Unauthorized access.') {
 				throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
 			} else if (error instanceof NodeOperationError && error.message === 'Credentials are missing.') {
