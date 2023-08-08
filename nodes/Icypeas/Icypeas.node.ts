@@ -14,7 +14,7 @@ export class Icypeas implements INodeType {
 		icon: 'file:logo.svg',
 		group: ['transform'],
 		version: 1,
-		description: 'Icypeas-Single Node for n8n will take care of the single searches (email verification, email search & domain search) with the Icypeas\'s API',
+		description: 'Icypeas Node for n8n will take care of the single and bulk searches (email verification, email search, domain search) with the Icypeas\'s API',
 		defaults: {
 			name: 'Icypeas',
 		},
@@ -41,7 +41,7 @@ export class Icypeas implements INodeType {
 					{
 						name: 'Bulk Search',
 						value: 'bulkSearch',
-						action: 'Bulk Search',
+						description: 'Requires a file with the informations to search',
 					},
 				],
 				default: 'singleSearch',
@@ -162,7 +162,7 @@ export class Icypeas implements INodeType {
 						value: 'domain-search',
 					},
 				],
-				default: 'email-search',
+				default: 'email-verification',
 				required: true,
 			},
 			{
