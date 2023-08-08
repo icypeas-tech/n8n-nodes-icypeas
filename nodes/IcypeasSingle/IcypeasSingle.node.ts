@@ -365,10 +365,8 @@ export class IcypeasSingle implements INodeType {
 			
 		} catch (error) {
 			// If an error occurs, capture it here and throw it as an exception for n8n
-			if (error instanceof NodeOperationError && error.message === 'Unauthorized access.') {
+			if (error instanceof Error && error.message === 'Unauthorized access.') {
 				throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
-			} else if (error instanceof NodeOperationError && error.message === 'The search type you selected is not implemented yet.') {
-				throw new NodeOperationError(this.getNode(), 'The search type you selected is not implemented yet.');
 			} else if (error instanceof NodeOperationError && error.message === 'Credentials are missing.') {
 				throw new NodeOperationError(this.getNode(), 'Credentials are missing.');
 			}throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');

@@ -1,7 +1,7 @@
 import { URL } from 'url';
 import Crypto from 'crypto';
 
-import fetch from 'node-fetch';
+//import fetch from 'node-fetch';
 import {
 	INodeExecutionData,    
 } from 'n8n-workflow';
