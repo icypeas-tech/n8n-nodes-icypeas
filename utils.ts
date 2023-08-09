@@ -15,7 +15,7 @@ export function generateSignature(
     const sign = Crypto.createHmac("sha1", secret).update(payload).digest("hex");
 
     return sign;
-}
+}    
 
 export async function processApiCallSingle(url: string, headers: any, body: string): Promise<INodeExecutionData[]> {
     // Make the API call     
