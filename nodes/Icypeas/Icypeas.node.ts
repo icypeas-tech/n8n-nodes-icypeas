@@ -248,59 +248,37 @@ export class Icypeas implements INodeType {
 
 		try {
 			if ( searchType === 'singleSearch') {
-
-				const URL_email_verif = "https://app.icypeas.com/api/email-verification";
-				const URL_email_search = "https://app.icypeas.com/api/email-search";
-				const URL_domain_search = "https://app.icypeas.com/api/domain-search";
-
 				const taskSingle = this.getNodeParameter('taskSingle', 0);
+				const URL_single = `https://app.icypeas.com/api/${taskSingle}`;
+				//const URL_email_verif = "https://app.icypeas.com/api/email-verification";
+				//const URL_email_search = "https://app.icypeas.com/api/email-search";
+				//const URL_domain_search = "https://app.icypeas.com/api/domain-search";
+				const timestamp = new Date().toISOString();
+				const signature = generateSignature(URL_single, "POST", apiSecret, timestamp);
+				const headers = {
+					"Content-Type": "application/json",
+					Authorization: `${apiKey}:${signature}`,
+					"X-ROCK-TIMESTAMP": timestamp,
+				};
+
+				let bodyParameters = JSON.stringify({});
 
 				if ( taskSingle === 'email-verification') {
-					const timestamp = new Date().toISOString();
-					const signature = generateSignature(URL_email_verif, "POST", apiSecret, timestamp);
-					const headers = {
-						"Content-Type": "application/json",
-						Authorization: `${apiKey}:${signature}`,
-						"X-ROCK-TIMESTAMP": timestamp,
-					};
-
 					const email = this.getNodeParameter('email', 0) as string; // Get the email value from the node properties
-					const bodyParameters = JSON.stringify({ email });
-
-					const outputData = await processApiCallSingle(URL_email_verif, headers, bodyParameters);
-        			return [outputData];
-
-				}else if ( taskSingle === 'email-search') {
-					const timestamp = new Date().toISOString();
-					const signature = generateSignature(URL_email_search, "POST", apiSecret, timestamp);
-					const headers = {
-						"Content-Type": "application/json",
-						Authorization: `${apiKey}:${signature}`,
-						"X-ROCK-TIMESTAMP": timestamp,
-					};
-
+					bodyParameters = JSON.stringify({ email });
+				}
+				else if ( taskSingle === 'email-search') {
 					const firstname = this.getNodeParameter('firstname', 0) as string; 
 					const lastname = this.getNodeParameter('lastname', 0) as string; 
 					const domainOrCompany = this.getNodeParameter('domain', 0) as string; 
-					const bodyParameters = JSON.stringify({ firstname, lastname, domainOrCompany });
-
-					const outputData = await processApiCallSingle(URL_email_search, headers, bodyParameters);
-        			return [outputData];
+					bodyParameters = JSON.stringify({ firstname, lastname, domainOrCompany });
 				}
 				else{
-					const timestamp = new Date().toISOString();
-					const signature = generateSignature(URL_domain_search, "POST", apiSecret, timestamp);
-					const headers = {
-						"Content-Type": "application/json",
-						Authorization: `${apiKey}:${signature}`,
-						"X-ROCK-TIMESTAMP": timestamp,
-					};
 					const domainOrCompany = this.getNodeParameter('domain', 0) as string;
-					const bodyParameters = JSON.stringify({ domainOrCompany });
-
-					const outputData = await processApiCallSingle(URL_domain_search, headers, bodyParameters);
-					return [outputData];
+					bodyParameters = JSON.stringify({ domainOrCompany });
 				}
+				const outputData = await processApiCallSingle(URL_single, headers, bodyParameters);
+				return [outputData];
 			}else{
 				const task = this.getNodeParameter('taskBulk', 0);
 
