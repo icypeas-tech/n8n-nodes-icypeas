@@ -1,6 +1,6 @@
 import { IExecuteFunctions } from 'n8n-core';
 import { INodeExecutionData, INodeType, INodeTypeDescription, NodeOperationError } from 'n8n-workflow';
-import { generateSignature, processApiCallSingle, processApiCallBulk } from '../../utils'; // Import the generateSignature & processApiCall functions
+import { generateSignature, processApiCall } from '../../utils'; // Import the generateSignature & processApiCall functions
 
 export class Icypeas implements INodeType {
 	description: INodeTypeDescription = {
@@ -243,6 +243,7 @@ export class Icypeas implements INodeType {
 
 		try {
 			if ( searchType === 'singleSearch') {
+				let isSingle = true;
 				const task = this.getNodeParameter('taskSingle', 0);
 				
 				const URL_single = `https://app.icypeas.com/api/${task}`;
@@ -253,11 +254,10 @@ export class Icypeas implements INodeType {
 					Authorization: `${apiKey}:${signature}`,
 					"X-ROCK-TIMESTAMP": timestamp,
 				};
-
 				let bodyParameters = JSON.stringify({});
 
 				if ( task === 'email-verification') {
-					const email = this.getNodeParameter('email', 0) as string; // Get the email value from the node properties
+					const email = this.getNodeParameter('email', 0) as string; 
 					bodyParameters = JSON.stringify({ email });
 				}
 				else if ( task === 'email-search') {
@@ -270,9 +270,10 @@ export class Icypeas implements INodeType {
 					const domainOrCompany = this.getNodeParameter('domain', 0) as string;
 					bodyParameters = JSON.stringify({ domainOrCompany });
 				}
-				const outputData = await processApiCallSingle(URL_single, headers, bodyParameters);
+				const outputData = await processApiCall(URL_single, headers, bodyParameters, isSingle); 
 				return [outputData];
-			}else{
+			}else{ //bulkSearch
+				let isSingle = false;
 				if (!credentials.userId) throw new NodeOperationError(this.getNode(), 'Credentials are missing: userId for bulk search.');
 				const user = credentials.userId as string;
 				const task = this.getNodeParameter('taskBulk', 0);
@@ -312,7 +313,7 @@ export class Icypeas implements INodeType {
 					data.push(...inputData.map(item => [renameColumns.domain ? item.json[renameColumns.domain] : item.json.company || '']));
 				}
 				bodyParameters = JSON.stringify({ user, name, task, data });
-				const outputData = await processApiCallBulk(URL_bulk, headers, bodyParameters);
+				const outputData = await processApiCall(URL_bulk, headers, bodyParameters, isSingle); 
 				return [outputData];
 			}
 		} catch (error) {
