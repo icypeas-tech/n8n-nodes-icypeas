@@ -1,6 +1,13 @@
 import { IExecuteFunctions } from 'n8n-core';
-import { INodeExecutionData, INodeType, INodeTypeDescription, NodeOperationError } from 'n8n-workflow';
-import { generateSignature, processApiCall } from '../../utils'; // Import the generateSignature & processApiCall functions
+import {
+	INodeExecutionData,
+	INodeType,
+	INodeTypeDescription,
+	NodeOperationError,
+} from 'n8n-workflow';
+import { IApiKeys } from '../../types';
+import * as Utils from '../../utils';
+import * as Constants from './constants';
 
 export class Icypeas implements INodeType {
 	description: INodeTypeDescription = {
@@ -9,7 +16,8 @@ export class Icypeas implements INodeType {
 		icon: 'file:logo.svg',
 		group: ['transform'],
 		version: 1,
-		description: 'Icypeas Node for n8n will take care of the single and bulk searches (email verification, email search, domain search) with the Icypeas\'s API',
+		description:
+			"Icypeas Node for n8n will take care of the single and bulk searches (email verification, email search, domain search) with the Icypeas's API",
 		defaults: {
 			name: 'Icypeas',
 		},
@@ -21,7 +29,8 @@ export class Icypeas implements INodeType {
 				required: true,
 			},
 		],
-		properties: [ // Node properties
+		properties: [
+			// Node properties
 			{
 				displayName: 'Search Type',
 				noDataExpression: true,
@@ -45,13 +54,11 @@ export class Icypeas implements INodeType {
 			{
 				displayName: 'Task',
 				noDataExpression: true,
-				name: 'taskSingle',
+				name: 'singleSearchTask',
 				type: 'options',
 				displayOptions: {
 					show: {
-						searchType: [
-							'singleSearch',
-						]
+						searchType: ['singleSearch'],
 					},
 				},
 				options: [
@@ -62,7 +69,7 @@ export class Icypeas implements INodeType {
 					{
 						name: 'Email Search',
 						value: 'email-search',
-						description: 'Requires the person\'s first name and last name, and a domain',
+						description: "Requires the person's first name and last name, and a domain",
 					},
 					{
 						name: 'Domain Search',
@@ -81,11 +88,9 @@ export class Icypeas implements INodeType {
 				description: 'Email to search',
 				displayOptions: {
 					show: {
-						taskSingle: [
-							'email-verification',
-						]
+						singleSearchTask: ['email-verification'],
 					},
-				}
+				},
 			},
 			{
 				displayName: 'First Name',
@@ -95,11 +100,9 @@ export class Icypeas implements INodeType {
 				placeholder: 'John',
 				displayOptions: {
 					show: {
-						taskSingle: [
-							'email-search',
-						]
+						singleSearchTask: ['email-search'],
 					},
-				}
+				},
 			},
 			{
 				displayName: 'Last Name',
@@ -109,37 +112,30 @@ export class Icypeas implements INodeType {
 				placeholder: 'Doe',
 				displayOptions: {
 					show: {
-						taskSingle: [
-							'email-search',
-						]
+						singleSearchTask: ['email-search'],
 					},
-				}
+				},
 			},
 			{
 				displayName: 'Domain Name',
-				name: 'domain',
+				name: 'domainOrCompany',
 				type: 'string',
 				default: '',
 				placeholder: 'icypeas.com',
 				displayOptions: {
 					show: {
-						taskSingle: [
-							'email-search',
-							'domain-search',
-						]
+						singleSearchTask: ['email-search', 'domain-search'],
 					},
-				}
+				},
 			},
 			{
 				displayName: 'Task',
 				noDataExpression: true,
-				name: 'taskBulk',
+				name: 'bulkSearchTask',
 				type: 'options',
 				displayOptions: {
 					show: {
-						searchType: [
-							'bulkSearch',
-						]
+						searchType: ['bulkSearch'],
 					},
 				},
 				options: [
@@ -150,7 +146,7 @@ export class Icypeas implements INodeType {
 					{
 						name: 'Email Search',
 						value: 'email-search',
-						description: 'Requires the person\'s first name and last name, and a domain',
+						description: "Requires the person's first name and last name, and a domain",
 					},
 					{
 						name: 'Domain Search',
@@ -169,28 +165,21 @@ export class Icypeas implements INodeType {
 				description: 'The name of the test you want to make',
 				displayOptions: {
 					show: {
-						taskBulk: [
-							'email-search',
-							'domain-search',
-							'email-verification',
-						],
+						bulkSearchTask: ['email-search', 'domain-search', 'email-verification'],
 					},
 				},
 			},
 			{
-				displayName: 'Rename columns',
+				displayName: 'Rename Columns',
 				name: 'renameColumns',
 				type: 'collection',
 				placeholder: 'Add New Column',
-				description: 'You can set the columns names here if they are different from the default ones',
+				description:
+					'You can set the columns names here if they are different from the default ones',
 				default: {},
 				displayOptions: {
 					show: {
-						taskBulk: [
-							'email-search',
-							'domain-search',
-							'email-verification',
-						],
+						bulkSearchTask: ['email-search', 'domain-search', 'email-verification'],
 					},
 				},
 				options: [
@@ -212,7 +201,7 @@ export class Icypeas implements INodeType {
 					},
 					{
 						displayName: 'Domain',
-						name: 'domain',
+						name: 'domainOrCompany',
 						type: 'string',
 						default: '',
 						description: 'Default: company',
@@ -226,8 +215,8 @@ export class Icypeas implements INodeType {
 						description: 'Default: email',
 						placeholder: 'email',
 					},
-				]
-			}
+				],
+			},
 		],
 	};
 
@@ -235,96 +224,73 @@ export class Icypeas implements INodeType {
 		const credentials = await this.getCredentials('icypeasApi');
 		const searchType = this.getNodeParameter('searchType', 0);
 
-		if ( !credentials.apiKey || !credentials.apiSecret) {
+		if (!credentials.apiKey || !credentials.apiSecret) {
 			throw new NodeOperationError(this.getNode(), 'Credentials are missing.');
 		}
-		const apiKey = credentials.apiKey as string;
-      	const apiSecret = credentials.apiSecret as string;
 
 		try {
-			if ( searchType === 'singleSearch') {
-				let isSingle = true;
-				const task = this.getNodeParameter('taskSingle', 0);
-				
-				const URL_single = `https://app.icypeas.com/api/${task}`;
-				const timestamp = new Date().toISOString();
-				const signature = generateSignature(URL_single, "POST", apiSecret, timestamp);
-				const headers = {
-					"Content-Type": "application/json",
-					Authorization: `${apiKey}:${signature}`,
-					"X-ROCK-TIMESTAMP": timestamp,
-				};
-				let bodyParameters = JSON.stringify({});
-
-				if ( task === 'email-verification') {
-					const email = this.getNodeParameter('email', 0) as string; 
-					bodyParameters = JSON.stringify({ email });
-				}
-				else if ( task === 'email-search') {
-					const firstname = this.getNodeParameter('firstname', 0) as string; 
-					const lastname = this.getNodeParameter('lastname', 0) as string; 
-					const domainOrCompany = this.getNodeParameter('domain', 0) as string; 
-					bodyParameters = JSON.stringify({ firstname, lastname, domainOrCompany });
-				}
-				else{ //task === 'domain-search'
-					const domainOrCompany = this.getNodeParameter('domain', 0) as string;
-					bodyParameters = JSON.stringify({ domainOrCompany });
-				}
-				const outputData = await processApiCall(URL_single, headers, bodyParameters, isSingle); 
-				return [outputData];
-			}else{ //bulkSearch
-				let isSingle = false;
-				if (!credentials.userId) throw new NodeOperationError(this.getNode(), 'Credentials are missing: userId for bulk search.');
-				const user = credentials.userId as string;
-				const task = this.getNodeParameter('taskBulk', 0);
-				const URL_bulk = "https://app.icypeas.com/api/bulk-search";
-
-				let name = this.getNodeParameter('name', 0);
-				if (!name) name = 'Test';
-				const renameColumns = this.getNodeParameter('renameColumns', 0) as {
-					firstname?: string; 
-					lastname?: string;
-					domain?: string;
-					email?: string;
-				};
-			
-				const timestamp = new Date().toISOString();
-				const signature = generateSignature(URL_bulk, "POST", apiSecret, timestamp);
-				const headers = {
-					"Content-Type": "application/json",
-					Authorization: `${apiKey}:${signature}`,
-					"X-ROCK-TIMESTAMP": timestamp,
-				};
-				let bodyParameters = JSON.stringify({});
-				const inputData = this.getInputData(0); //O : index of the first input
-				const data : any[][] = [];
-
-				if ( task === 'email-search') {
-					data.push(
-						...inputData.map(item => [
-							renameColumns.firstname ? item.json[renameColumns.firstname] : item.json.firstname || '',
-							renameColumns.lastname ? item.json[renameColumns.lastname] : item.json.lastname || '',
-							renameColumns.domain ? item.json[renameColumns.domain] : item.json.company || '',
-						])
+			const taskName = this.getNodeParameter(`${searchType}Task`, 0) as string;
+			const myUrl =
+				searchType === 'singleSearch'
+					? `https://app.icypeas.com/api/${taskName}`
+					: 'https://app.icypeas.com/api/bulk-search';
+			let bodyParameters: any = {};
+			const taskFields = Constants.tasks.get(taskName)!;
+			if (searchType === 'singleSearch') {
+				bodyParameters = JSON.stringify(
+					taskFields.reduce((params: any, field: string) => {
+						params[field] = this.getNodeParameter(field, 0) as string;
+						return params;
+					}, {}),
+				);
+			} else {
+				if (!credentials.userId)
+					throw new NodeOperationError(
+						this.getNode(),
+						'Credentials are missing: userId for bulk search.',
 					);
-				}else if ( task === 'email-verification' ) {
-					data.push(...inputData.map(item => [renameColumns.email ? item.json[renameColumns.email] : item.json.email || '']));
-				}else{ //task === 'domain-search'
-					data.push(...inputData.map(item => [renameColumns.domain ? item.json[renameColumns.domain] : item.json.company || '']));
-				}
-				bodyParameters = JSON.stringify({ user, name, task, data });
-				const outputData = await processApiCall(URL_bulk, headers, bodyParameters, isSingle); 
-				return [outputData];
+				const user = credentials.userId as string;
+				const name = (this.getNodeParameter('name', 0) as string) || 'Test';
+				const renameColumns = this.getNodeParameter('renameColumns', 0) as {
+					[key: string]: string | undefined;
+				};
+				const inputData = this.getInputData(0); //O : index of the first input
+				const data: any[][] = inputData.map((item) => {
+					return taskFields.map((field) => {
+						const f: string = renameColumns[field] || field;
+						return item.json[f] || '';
+					});
+				});
+				bodyParameters = JSON.stringify({ user, name, task: taskName, data });
 			}
+			const outputData = await Utils.processApiCall(
+				myUrl,
+				credentials as unknown as IApiKeys,
+				bodyParameters,
+				false,
+			);
+			return [outputData];
 		} catch (error) {
 			if (error instanceof Error && error.message === 'Unauthorized access.') {
 				throw new NodeOperationError(this.getNode(), 'Unauthorized access.');
-			} else if (error instanceof NodeOperationError && error.message === 'Credentials are missing.') {
+			} else if (
+				error instanceof NodeOperationError &&
+				error.message === 'Credentials are missing.'
+			) {
 				throw new NodeOperationError(this.getNode(), 'Credentials are missing.');
-			} else if (error instanceof NodeOperationError && error.message === 'Credentials are missing: userId for bulk search.') {
-				throw new NodeOperationError(this.getNode(), 'Credentials are missing: userId for bulk search.');
-			}throw new NodeOperationError(this.getNode(), 'An unknown error occurred while processing the request.');
+			} else if (
+				error instanceof NodeOperationError &&
+				error.message === 'Credentials are missing: userId for bulk search.'
+			) {
+				throw new NodeOperationError(
+					this.getNode(),
+					'Credentials are missing: userId for bulk search.',
+				);
+			}
+			throw new NodeOperationError(
+				this.getNode(),
+				'An unknown error occurred while processing the request.',
+			);
 		}
 	}
 }
-
