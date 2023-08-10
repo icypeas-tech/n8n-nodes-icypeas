@@ -180,7 +180,7 @@ export class Icypeas implements INodeType {
 				type: 'collection',
 				placeholder: 'Add New Column',
 				description:
-					'You can set the columns names here if they are different from the default ones',
+					'You can set the columns names here if they are different from the default ones (which are "firstname", "lastname", "domainOrCompany")',
 				default: {},
 				displayOptions: {
 					show: {
