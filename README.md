@@ -1,18 +1,18 @@
-# n8n-nodes-icypeas
+# Icypeas node
 
-This is an n8n community node. It lets you use _Icypeas API_ in your n8n workflows.
+This is an n8n community node. It lets you use Icypeas API in your n8n workflows.
 
-_Icypeas_ is _one or two sentences describing the service this node integrates with_.
+Icypeas is a node that will take care of the single and bulk searches (email verification, email search, domain search) with the [Icypeas's API](https://app.icypeas.com/).
+
+For the [API](https://app.icypeas.com/), you can always refer to the [Icypeas documentation](https://api-doc.icypeas.com/getting-started) for more informations.
 
 [n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform.
 
 [Installation](#installation)  
 [Operations](#operations)  
-[Credentials](#credentials)  <!-- delete if no auth needed -->  
-[Compatibility](#compatibility)  
-[Usage](#usage)  <!-- delete if not using this section -->  
+[Credentials](#credentials)      
+[Usage](#usage)   
 [Resources](#resources)  
-[Version history](#version-history)  <!-- delete if not using this section -->  
 
 ## Installation
 
@@ -20,29 +20,41 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ## Operations
 
-_List the operations supported by your node._
+You can do : 
+- email verification
+- email search 
+- domain search  
+
+by either performing :
+- a single search 
+- or a bulk search.
 
 ## Credentials
 
-_If users need to authenticate with the app/service, provide details here. You should include prerequisites (such as signing up with the service), available authentication methods, and how to set them up._
+You need to implement three informations:
+- The API key
+- The API Secret
+- The User ID for the bulk search
 
-## Compatibility
+To retrieve those informations, go to the user profile in the Icypeas application. After logging in: Click on the profile icon > Select _Your Profile_  > Go to the _API_ section > Click on the _Enable API Access_ button.
 
-_State the minimum n8n version, as well as which versions you test against. You can also include any known version incompatibility issues._
 
 ## Usage
 
-_This is an optional section. Use it to help users with any difficult or confusing aspects of the node._
+The bulk search needs the user ID, and a file with the informations to search. The file must be a xlsx file (or Google Sheet) with the following columns:
+- _email_ (for email verification)
+- _company_ (for domain search)
+- _firstname_, _lastname_, _company_ (for email search).
 
-_By the time users are looking for community nodes, they probably already know n8n basics. But if you expect new users, you can link to the [Try it out](https://docs.n8n.io/try-it-out/) documentation to help them get started._
+You can also implement your own colomns names if they are different, by specifying them in the node settings.
+
+You can always refer to the [Icypeas documentation](https://api-doc.icypeas.com/getting-started) for more informations.
 
 ## Resources
 
+* [Icypeas's API](https://app.icypeas.com/)
+* [Icypeas documentation](https://api-doc.icypeas.com/getting-started)
 * [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
-* _Link to app/service documentation._
 
-## Version history
-
-_This is another optional section. If your node has multiple versions, include a short description of available versions and what changed, as well as any compatibility impact._
 
 
