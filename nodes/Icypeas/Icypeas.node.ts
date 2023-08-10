@@ -232,8 +232,8 @@ export class Icypeas implements INodeType {
 			const taskName = this.getNodeParameter(`${searchType}Task`, 0) as string;
 			const myUrl =
 				searchType === 'singleSearch'
-					? `https://app.icypeas.com/api/${taskName}`
-					: 'https://app.icypeas.com/api/bulk-search';
+					? `${Constants.ICYPEAS_HOSTNAME}/api/${taskName}`
+					: `${Constants.ICYPEAS_HOSTNAME}/api/bulk-search`;
 			let bodyParameters: any = {};
 			const taskFields = Constants.tasks.get(taskName)!;
 			if (searchType === 'singleSearch') {
@@ -250,7 +250,8 @@ export class Icypeas implements INodeType {
 						'Credentials are missing: userId for bulk search.',
 					);
 				const user = credentials.userId as string;
-				const name = (this.getNodeParameter('name', 0) as string) || 'Test';
+				const name =
+					(this.getNodeParameter('name', 0) as string) || Constants.DEFAULT_BULKSEARCH_NAME;
 				const renameColumns = this.getNodeParameter('renameColumns', 0) as {
 					[key: string]: string | undefined;
 				};
