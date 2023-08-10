@@ -167,7 +167,7 @@ export class Icypeas implements INodeType {
 				type: 'string',
 				default: '',
 				placeholder: 'Test',
-				description: 'The name of the test you want to make',
+				description: 'The name of your bulk search',
 				displayOptions: {
 					show: {
 						bulkSearchTask: ['email-search', 'domain-search', 'email-verification'],

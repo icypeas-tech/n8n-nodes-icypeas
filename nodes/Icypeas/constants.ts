@@ -4,6 +4,6 @@ export const tasks: Map<string, string[]> = new Map([
 	['domain-search', ['domainOrCompany']],
 ]);
 
-export const ICYPEAS_HOSTNAME = 'https://demo.icypeas.com';
+export const ICYPEAS_HOSTNAME = 'https://app.icypeas.com';
 
 export const DEFAULT_BULKSEARCH_NAME = 'Test';
