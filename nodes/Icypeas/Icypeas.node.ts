@@ -17,7 +17,7 @@ export class Icypeas implements INodeType {
 		group: ['transform'],
 		version: 1,
 		description:
-			"Icypeas Node for n8n will take care of the single and bulk searches (email verification, email search, domain search) with the Icypeas's API",
+			'Icypeas Node for n8n will take care of the single and bulk searches (verify emails, search for emails, discover all generic emails from a domain)',
 		defaults: {
 			name: 'Icypeas',
 		},
@@ -41,11 +41,12 @@ export class Icypeas implements INodeType {
 						name: 'Single Search',
 						value: 'singleSearch',
 						action: 'Single Search',
+						description: 'When you need to discover or verify only one email address',
 					},
 					{
 						name: 'Bulk Search',
 						value: 'bulkSearch',
-						description: 'Requires a file with the informations to search',
+						description: 'When you need to discover or verify more than one email addresses',
 					},
 				],
 				default: 'singleSearch',
@@ -65,15 +66,17 @@ export class Icypeas implements INodeType {
 					{
 						name: 'Email Verification',
 						value: 'email-verification',
+						description: 'Verify that an email address exists',
 					},
 					{
 						name: 'Email Search',
 						value: 'email-search',
-						description: "Requires the person's first name and last name, and a domain",
+						description: 'Look for the email address of your prospect',
 					},
 					{
 						name: 'Domain Search',
 						value: 'domain-search',
+						description: 'Discover all generics email addresses for a domain or a company',
 					},
 				],
 				default: 'email-verification',
@@ -142,15 +145,17 @@ export class Icypeas implements INodeType {
 					{
 						name: 'Email Verification',
 						value: 'email-verification',
+						description: 'Verify that an email address exists',
 					},
 					{
 						name: 'Email Search',
 						value: 'email-search',
-						description: "Requires the person's first name and last name, and a domain",
+						description: 'Look for the email address of your prospect',
 					},
 					{
 						name: 'Domain Search',
 						value: 'domain-search',
+						description: 'Discover all generics email addresses for a domain or a company',
 					},
 				],
 				default: 'email-verification',
@@ -268,7 +273,7 @@ export class Icypeas implements INodeType {
 				myUrl,
 				credentials as unknown as IApiKeys,
 				bodyParameters,
-				false,
+				searchType === 'singleSearch',
 			);
 			return [outputData];
 		} catch (error) {

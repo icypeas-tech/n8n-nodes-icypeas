@@ -1,11 +1,5 @@
-import {
-	//IAuthenticateGeneric,
-	//ICredentialTestRequest,
-	ICredentialType,
-	INodeProperties,
-	JsonObject,
-} from 'n8n-workflow';
-import { generateSignature } from '../utils'; // Import the generateSignature function
+import { ICredentialType, INodeProperties, JsonObject } from 'n8n-workflow';
+import * as Utils from '../utils';
 
 export class IcypeasApi implements ICredentialType {
 	name = 'icypeasApi';
@@ -25,7 +19,7 @@ export class IcypeasApi implements ICredentialType {
 			name: 'apiSecret',
 			type: 'string',
 			typeOptions: {
-			  	password: true,
+				password: true,
 			},
 			default: '',
 		},
@@ -39,22 +33,22 @@ export class IcypeasApi implements ICredentialType {
 
 	async authenticateRequest(this: any, request: any): Promise<void> {
 		const credentials = this.getCredentials();
-    	const apiKey = credentials.apiKey as string;
-    	const apiSecret = credentials.apiSecret as string;
-    	const timestamp = new Date().toISOString();
-    	const signature = generateSignature(
-      		'https://app.icypeas.com/api/email-verification',
-      		'POST',
-      		apiSecret,
-      		timestamp
-    	);
+		const apiKey = credentials.apiKey as string;
+		const apiSecret = credentials.apiSecret as string;
+		const timestamp = new Date().toISOString();
+		const signature = Utils.generateSignature(
+			'https://app.icypeas.com/api/email-verification',
+			'POST',
+			apiSecret,
+			timestamp,
+		);
 
-    	(request.headers as JsonObject) = {
-      		...(request.headers as JsonObject),
-      		'Content-Type': 'application/json',
-      		Authorization: `${apiKey}:${signature}`,
-      		'X-ROCK-TIMESTAMP': timestamp,
-    	};
+		(request.headers as JsonObject) = {
+			...(request.headers as JsonObject),
+			'Content-Type': 'application/json',
+			Authorization: `${apiKey}:${signature}`,
+			'X-ROCK-TIMESTAMP': timestamp,
+		};
 	}
 
 	getCredentials(this: any): {
