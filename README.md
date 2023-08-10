@@ -46,8 +46,8 @@ To retrieve those informations, go to the user profile in the Icypeas applicatio
 The bulk search needs the user ID, and a file with the informations to search. The file must be a xlsx file (or Google Sheet) with the following columns:
 
 - _email_ (for email verification)
-- _companyOrDomain_ (for domain search)
-- _firstname_, _lastname_, _companyOrDomain_ (for email search).
+- _domainOrCompany_ (for domain search)
+- _firstname_, _lastname_, _domainOrCompany_ (for email search).
 
 You can also implement your own colomns names if they are different, by specifying them in the node settings.
 
