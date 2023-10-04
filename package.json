@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-icypeas",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "n8n node for Icypeas API",
 	"keywords": [
 		"n8n-community-node-package",
@@ -11,6 +11,10 @@
 		"email verifier",
 		"domain scan"
 	],
+	"repository": {
+		"url": "",
+		"type": "git"
+	},
 	"license": "MIT",
 	"homepage": "https//www.icypeas.com",
 	"author": {
